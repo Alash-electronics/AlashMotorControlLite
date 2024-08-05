@@ -22,7 +22,11 @@ AlashMotorControlLite::AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pi
   pinMode(_pin1, OUTPUT);
   pinMode(_pin2, OUTPUT);
 
-  analogWrite(_pin_pwm, 0);
+#if defined(ARDUINO_ARCH_ESP32)
+        ledcWrite(_pin_pwm, 0);
+#else
+        analogWrite(_pin_pwm, 0);
+#endif
   digitalWrite(_pin1, LOW);
   digitalWrite(_pin2, LOW);
 }
