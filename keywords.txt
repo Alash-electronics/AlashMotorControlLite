@@ -3,13 +3,17 @@
 #############################################
 AlashMotorControlLite	KEYWORD3
 #############################################
-# Methods and Functions 
+# Methods and Functions
 #############################################
 setSpeed	KEYWORD2
 brake	KEYWORD2
+stop	KEYWORD2
+getSpeed	KEYWORD2
+getMode	KEYWORD2
 #############################################
 # Constants
 #############################################
 DIR_PWM	LITERAL1
 PWM_PWM	LITERAL1
 DIR_DIR_PWM	LITERAL1
+DIR_DIR	LITERAL1
