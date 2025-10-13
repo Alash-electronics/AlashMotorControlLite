@@ -33,6 +33,22 @@ AlashMotorControlLite::AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pi
       ledcWrite(_pwm_channel1, 0);
       ledcWrite(_pwm_channel2, 0);
     #endif
+  } else if (_mode == DIR_PWM) {
+    // Для DIR_PWM: pin2 - это PWM пин
+    _pwm_channel = _nextChannel++;
+    _pin_pwm = _pin2;
+
+    #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      // Новый API для ESP32 3.x
+      ledcAttach(_pin_pwm, 5000, 8);
+      ledcWrite(_pin_pwm, 0);
+    #else
+      // Старый API для ESP32 2.x
+      ledcSetup(_pwm_channel, 5000, 8);
+      ledcAttachPin(_pin_pwm, _pwm_channel);
+      ledcWrite(_pwm_channel, 0);
+    #endif
+    digitalWrite(_pin1, LOW);
   } else {
     digitalWrite(_pin1, LOW);
     digitalWrite(_pin2, LOW);
