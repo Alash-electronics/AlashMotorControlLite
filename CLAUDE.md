@@ -6,11 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AlashMotorControlLite** is an Arduino library for controlling DC motors through various motor driver chips. The library provides a unified API that abstracts different motor driver configurations, supporting both Arduino and ESP32 platforms.
 
+**Current Version:** 1.0.7
+**Repository:** https://github.com/Alash-electronics/AlashMotorControlLite
+**License:** MIT
+**Status:** Ready for Arduino Library Manager
+
 **Key Design Goals:**
 - Simple, intuitive speed control (-100 to 100 range)
 - Support for multiple motor driver types through MODE enum
 - Cross-platform compatibility (Arduino, ESP32)
 - Protection against incorrect usage (automatic speed limiting, copy prevention)
+- ESP32 Arduino Core 2.x and 3.x compatibility
+- Comprehensive examples (17 total) from basic to advanced
 
 ## Core Architecture
 
@@ -18,21 +25,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The library uses a MODE enum to handle 4 different motor driver configurations:
 
-1. **DIR_PWM** (2 pins): 1 digital direction pin + 1 PWM speed pin
-   - Compatible with: TB6612FNG, DRV8833
+1. **DIR_PWM** (2 pins): 1 direction pin + 1 PWM pin
+   - Compatible with: L298N (most common)
+   - pin1 = Direction (IN1/DIR)
+   - pin2 = PWM speed control (ENA/PWM)
    - Most common Arduino setup
 
 2. **PWM_PWM** (2 pins): 2 PWM pins for bidirectional control
-   - Compatible with: ZK-5AD, L298N, BTS7960
+   - Compatible with: TB6612FNG, ZK-5AD, DRV8833
+   - pin1 = First PWM (IN1)
+   - pin2 = Second PWM (IN2)
    - Recommended for ESP32 (abundant PWM channels)
+   - Better control and braking
 
-3. **DIR_DIR_PWM** (3 pins): 2 digital direction pins + 1 PWM enable pin
-   - Compatible with: L298N with EN pin, L293D
+3. **DIR_DIR_PWM** (3 pins): 2 direction pins + 1 PWM enable pin
+   - Compatible with: L293D, some L298N configurations
+   - pin1 = First direction (IN1)
+   - pin2 = Second direction (IN2)
+   - pin_pwm = PWM enable (EN)
    - Clear separation of direction and speed
 
 4. **DIR_DIR** (2 pins): 2 digital pins, no PWM (on/off only)
    - For relay modules or drivers without PWM input
+   - pin1 = First control pin
+   - pin2 = Second control pin
    - Speed value ignored, only direction matters
+
+**Constructor Signatures:**
+```cpp
+// 2-pin constructor (DIR_PWM, PWM_PWM, DIR_DIR)
+AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pin2);
+
+// 3-pin constructor (DIR_DIR_PWM only)
+AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pin2, uint8_t pin_pwm);
+```
+
+**CRITICAL:** Parameter order is `(mode, pin1, pin2, [pin_pwm])` - this was corrected in v1.0.7
 
 ### ESP32 Dual PWM API Support
 
@@ -73,18 +101,53 @@ Implementation varies by MODE but generally:
 - `stop()`: Sets all control pins to LOW or PWM to 0
 - `brake()`: Sets specific pin combinations that short the H-bridge
 
+## Public API Methods
+
+```cpp
+void setSpeed(int16_t speed);     // Set speed -100 to 100 (auto-clamped)
+void brake();                      // Active brake (shorts motor terminals)
+void stop();                       // Coast stop (disables motor, free spin)
+int16_t getSpeed() const;         // Get current user-specified speed
+MODE getMode() const;             // Get driver mode configuration
+```
+
+**New in v1.0.7:**
+- `stop()` - Coast stop method (different from brake)
+- `getSpeed()` - Query current speed setting
+- `getMode()` - Query driver configuration
+
 ## Examples Structure
 
-The library includes 17 examples organized into 3 categories:
+The library includes **17 examples** organized into categories:
 
-**Базовые примеры (7):** Educational examples demonstrating library features
-- StopVsBrake, GettersDemo, SmoothSpeed, AllModesDemo, SpeedLimits, DirectionChange, MultiMotorSync
+### Basic Mode Examples (4)
+Demonstrate each MODE type:
+- **DIR_PWM** - Most common mode (L298N-style)
+- **PWM_PWM** - Dual PWM mode (TB6612FNG-style)
+- **DIR_DIR_PWM** - Three-pin mode (L293D-style)
+- **DIR_DIR** - Binary control (no PWM)
 
-**Режимы драйверов (6):** Examples for specific MODE configurations
-- DIR_PWM, DIR_PWM_DualMotor, PWM_PWM_DualMotor, DIR_DIR_PWM, DIR_DIR_PWM_DualMotor, DIR_DIR_PWM_pot
+### Driver-Specific Examples (4)
+Practical wiring for popular drivers:
+- **L298N_Basic** - Popular dual H-bridge module
+- **TB6612FNG_Dual** - Compact dual motor driver
+- **ZK_5AD_Dual** - Two motors with single ZK-5AD
+- **DRV8833_Dual** - Low-voltage dual motor driver
 
-**ESP32 специализированные (4):** Advanced ESP32 applications
-- ESP32_ZK5AD_SingleMotor, ESP32_ZK5AD_DualMotor, ESP32_Mecanum_4WD_Demo, ESP32_Mecanum_Serial
+### ESP32 Advanced Examples (2)
+Complex ESP32-specific applications:
+- **ESP32_Mecanum_4WD_Demo** - 4-wheel mecanum omnidirectional robot
+- **ESP32_Mecanum_Serial** - Interactive serial control for mecanum
+
+### Educational Examples (7)
+Teaching library features and best practices:
+- **StopVsBrake** - Demonstrates difference between stop() and brake()
+- **GettersDemo** - Shows usage of getSpeed() and getMode()
+- **SmoothSpeed** - Ramping and gradual speed changes
+- **AllModesDemo** - Comprehensive comparison of all 4 modes
+- **SpeedLimits** - Speed clamping and boundary testing
+- **DirectionChange** - Safe direction reversal techniques
+- **MultiMotorSync** - Synchronizing multiple motors
 
 ### Example Conventions
 
@@ -186,17 +249,188 @@ Add another `#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(X, Y, Z)` branch
 ```
 AlashMotorControlLite/
 ├── src/
-│   ├── AlashMotorControlLite.h    # Class declaration, MODE enum
-│   └── AlashMotorControlLite.cpp  # Implementation with platform ifdefs
-├── examples/                       # 17 examples (see Examples Structure)
-├── library.properties              # Arduino library metadata
-├── keywords.txt                    # IDE syntax highlighting
-├── LICENSE                         # MIT license
-└── README.md                       # Russian installation/usage guide
+│   ├── AlashMotorControlLite.h      # Class declaration, MODE enum
+│   └── AlashMotorControlLite.cpp    # Implementation with platform ifdefs
+├── examples/                         # 17 examples (see Examples Structure)
+│   ├── DIR_PWM/
+│   ├── PWM_PWM/
+│   ├── DIR_DIR_PWM/
+│   ├── DIR_DIR/
+│   ├── L298N_Basic/
+│   ├── TB6612FNG_Dual/
+│   ├── ZK_5AD_Dual/
+│   ├── DRV8833_Dual/
+│   ├── ESP32_Mecanum_4WD_Demo/
+│   ├── ESP32_Mecanum_Serial/
+│   ├── StopVsBrake/
+│   ├── GettersDemo/
+│   ├── SmoothSpeed/
+│   ├── AllModesDemo/
+│   ├── SpeedLimits/
+│   ├── DirectionChange/
+│   └── MultiMotorSync/
+├── library.properties                # Arduino library metadata
+├── keywords.txt                      # IDE syntax highlighting
+├── LICENSE                           # MIT license
+├── README.md                         # SEO-optimized user documentation
+├── CLAUDE.md                         # This file - AI assistant guide
+├── PUBLISHING.md                     # Detailed Arduino Library Manager guide
+└── QUICK_PUBLISH.md                  # Quick 3-step publishing guide
 ```
+
+## Arduino Library Manager Registration
+
+**Status:** Ready for publication
+
+The library meets all Arduino Library Manager requirements:
+- ✅ Correct folder structure (src/, examples/)
+- ✅ Valid library.properties with detailed metadata
+- ✅ MIT License file
+- ✅ Comprehensive README.md
+- ✅ keywords.txt for IDE syntax highlighting
+- ✅ 17 working examples
+- ✅ Public GitHub repository
+
+**Publication Process:**
+1. Create git tag: `git tag -a 1.0.7 -m "Version 1.0.7"`
+2. Push tag: `git push origin 1.0.7`
+3. Create GitHub Release with tag 1.0.7
+4. Wait 24-48 hours for automatic indexing
+
+See PUBLISHING.md for detailed step-by-step instructions.
+
+## Common Code Patterns for AI Generation
+
+### Creating Motor Objects
+
+```cpp
+// Arduino with L298N (DIR_PWM mode)
+AlashMotorControlLite motor(DIR_PWM, 4, 3);  // pin1=DIR, pin2=PWM
+
+// ESP32 with TB6612FNG (PWM_PWM mode)
+AlashMotorControlLite motor(PWM_PWM, 32, 33);  // pin1=IN1, pin2=IN2
+
+// Multiple motors for robot
+AlashMotorControlLite motorLeft(PWM_PWM, 32, 33);
+AlashMotorControlLite motorRight(PWM_PWM, 25, 26);
+```
+
+### Basic Motor Control
+
+```cpp
+motor.setSpeed(75);      // 75% forward
+delay(2000);
+motor.setSpeed(-50);     // 50% reverse
+delay(2000);
+motor.stop();            // Coast to a stop
+motor.brake();           // Active brake
+```
+
+### Smooth Speed Ramping
+
+```cpp
+void rampSpeed(AlashMotorControlLite &motor, int targetSpeed, unsigned long duration) {
+    int currentSpeed = motor.getSpeed();
+    int steps = abs(targetSpeed - currentSpeed);
+    if (steps == 0) return;
+
+    unsigned long stepDelay = duration / steps;
+
+    for (int i = 1; i <= steps; i++) {
+        int newSpeed = currentSpeed + ((targetSpeed - currentSpeed) * i / steps);
+        motor.setSpeed(newSpeed);
+        delay(stepDelay);
+    }
+}
+```
+
+### Multi-Motor Robot Control
+
+```cpp
+void moveForward(int speed) {
+    motorLeft.setSpeed(speed);
+    motorRight.setSpeed(speed);
+}
+
+void turnRight(int speed) {
+    motorLeft.setSpeed(speed);
+    motorRight.setSpeed(-speed);
+}
+
+void stopAll() {
+    motorLeft.stop();
+    motorRight.stop();
+}
+```
+
+### Mecanum Wheel Kinematics (4 motors)
+
+```cpp
+// vx: forward/backward, vy: strafe left/right, rotation: turn CW/CCW
+void mecanumDrive(int vx, int vy, int rotation) {
+    int speedFL = vx + vy + rotation;  // Front Left
+    int speedFR = vx - vy - rotation;  // Front Right
+    int speedRL = vx - vy + rotation;  // Rear Left
+    int speedRR = vx + vy - rotation;  // Rear Right
+
+    // Normalize if any speed exceeds 100
+    int maxSpeed = max(max(abs(speedFL), abs(speedFR)),
+                       max(abs(speedRL), abs(speedRR)));
+    if (maxSpeed > 100) {
+        speedFL = (speedFL * 100) / maxSpeed;
+        speedFR = (speedFR * 100) / maxSpeed;
+        speedRL = (speedRL * 100) / maxSpeed;
+        speedRR = (speedRR * 100) / maxSpeed;
+    }
+
+    motorFL.setSpeed(speedFL);
+    motorFR.setSpeed(speedFR);
+    motorRL.setSpeed(speedRL);
+    motorRR.setSpeed(speedRR);
+}
+```
+
+## Supported Hardware
+
+### Motor Drivers (Tested)
+- **L298N** - Most popular, 2A per channel, 5-35V
+- **TB6612FNG** - Compact, 1.2A per channel, 2.7-5.5V
+- **ZK-5AD** - Dual motor, 3A per channel, 6-27V
+- **DRV8833** - Low voltage, 1.5A per channel, 2.7-10.8V
+- **BTS7960** - High current, 43A, 5.5-27V (single channel)
+- **L293D** - Classic IC, 0.6A per channel, 4.5-36V
+
+### Platforms (Tested)
+- Arduino Uno, Mega, Nano (ATmega328P, ATmega2560)
+- ESP32 (all variants) - Arduino Core 2.x and 3.x
+- ESP8266
+- STM32 (Arduino framework)
+
+## Version History
+
+### v1.0.7 (Current - Ready for Library Manager)
+- ✅ ESP32 Arduino Core 3.x support (dual PWM API)
+- ✅ Added stop(), getSpeed(), getMode() methods
+- ✅ 17 examples including mecanum wheels
+- ✅ Copy protection (private copy constructor)
+- ✅ SEO-optimized README for humans and AI
+- ✅ Publishing guides (PUBLISHING.md, QUICK_PUBLISH.md)
+- ✅ Corrected constructor parameter order
+- ✅ Fixed all examples to use -100 to 100 speed range
+
+### v1.0.6 and earlier
+- Basic motor control functionality
+- 4 MODE types support
+- ESP32 2.x compatibility
+
+## Keywords for Search/SEO
+
+Arduino motor control, ESP32 motor driver, DC motor library, L298N Arduino, TB6612FNG library, PWM motor control, H-bridge Arduino, motor driver library, Arduino robot, ESP32 robot control, mecanum wheels, dual motor control, Arduino motor shield, ZK-5AD driver, DRV8833 Arduino, BTS7960 library, L293D motor control, motor speed control, Arduino PWM, ESP32 PWM
 
 ## External Resources
 
-- Website: https://alash-electronics.kz/
-- GitHub: https://github.com/Alash-electronics/AlashMotorControlLite
-- Target market: Kazakhstan, Russia (hence Russian documentation)
+- **Website:** https://alash-electronics.kz/
+- **GitHub:** https://github.com/Alash-electronics/AlashMotorControlLite
+- **Support:** support@alash-electronics.kz
+- **Target Market:** Kazakhstan, Russia (hence Russian documentation)
+- **License:** MIT (free for commercial and personal use)
