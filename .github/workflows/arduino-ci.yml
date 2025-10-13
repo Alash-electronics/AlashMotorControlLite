@@ -1,0 +1,81 @@
+name: Arduino CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    name: Arduino Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Arduino Lint
+        uses: arduino/arduino-lint-action@v2
+        with:
+          compliance: strict
+          library-manager: submit
+
+  compile:
+    name: Compile Examples
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - fqbn: "arduino:avr:uno"
+            platform: "arduino:avr"
+            name: "Arduino Uno"
+          - fqbn: "arduino:avr:mega"
+            platform: "arduino:avr"
+            name: "Arduino Mega"
+          - fqbn: "esp32:esp32:esp32"
+            platform: "esp32:esp32"
+            name: "ESP32"
+            index-url: "https://espressif.github.io/arduino-esp32/package_esp32_index.json"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install platform
+        run: |
+          if [ -n "${{ matrix.board.index-url }}" ]; then
+            arduino-cli core update-index --additional-urls "${{ matrix.board.index-url }}"
+            arduino-cli core install ${{ matrix.board.platform }} --additional-urls "${{ matrix.board.index-url }}"
+          else
+            arduino-cli core update-index
+            arduino-cli core install ${{ matrix.board.platform }}
+          fi
+
+      - name: Install library
+        run: |
+          mkdir -p $HOME/Arduino/libraries
+          ln -s $PWD $HOME/Arduino/libraries/AlashMotorControlLite
+
+      - name: Compile Examples
+        run: |
+          # Get all .ino files
+          for example in $(find examples -name "*.ino"); do
+            echo "Compiling $example for ${{ matrix.board.name }}..."
+
+            # Skip ESP32-specific examples on Arduino boards
+            if [[ "${{ matrix.board.fqbn }}" != "esp32:esp32:esp32" ]] && [[ "$example" == *"ESP32"* ]]; then
+              echo "Skipping ESP32-specific example on non-ESP32 board"
+              continue
+            fi
+
+            arduino-cli compile --fqbn ${{ matrix.board.fqbn }} $example
+
+            if [ $? -ne 0 ]; then
+              echo "Failed to compile $example"
+              exit 1
+            fi
+          done
