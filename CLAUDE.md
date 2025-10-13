@@ -406,6 +406,33 @@ void mecanumDrive(int vx, int vy, int rotation) {
 - ESP8266
 - STM32 (Arduino framework)
 
+## Arduino Uno RAM Optimization
+
+**CRITICAL:** Arduino Uno has only 2KB of RAM. String literals in `Serial.print("text")` consume RAM by default.
+
+**Solution:** All examples use the `F()` macro to store strings in flash memory instead of RAM.
+
+### Correct Usage:
+```cpp
+// ✓ CORRECT - String stored in flash memory
+Serial.println(F("Motor forward"));
+
+// ✗ WRONG - String consumes precious RAM
+Serial.println("Motor forward");
+```
+
+### Why This Matters:
+- Arduino Uno: 2048 bytes RAM
+- Educational examples have 40-143 Serial.print calls
+- Without F(): Can use 4000+ bytes (exceeds available RAM!)
+- With F(): Uses only ~200-400 bytes RAM
+
+### When Adding New Examples:
+**ALWAYS** wrap all string literals with `F()` macro:
+- `Serial.print(F("text"))`
+- `Serial.println(F("text"))`
+- Do NOT wrap variables: `Serial.print(motor.getSpeed())` ← correct as-is
+
 ## Version History
 
 ### v1.0.7 (Current - Ready for Library Manager)
@@ -417,6 +444,7 @@ void mecanumDrive(int vx, int vy, int rotation) {
 - ✅ Publishing guides (PUBLISHING.md, QUICK_PUBLISH.md)
 - ✅ Corrected constructor parameter order
 - ✅ Fixed all examples to use -100 to 100 speed range
+- ✅ All examples use F() macro for Arduino Uno RAM optimization
 
 ### v1.0.6 and earlier
 - Basic motor control functionality

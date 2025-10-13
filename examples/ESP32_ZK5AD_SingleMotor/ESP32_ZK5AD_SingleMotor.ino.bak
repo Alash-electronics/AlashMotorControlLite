@@ -21,39 +21,39 @@ AlashMotorControlLite motor(PWM_PWM, 32, 33);
 
 void setup() {
   Serial.begin(115200);
-  Serial.println(F("ESP32 + ZK-5AD Motor Control"));
-  Serial.println(F("Диапазон скорости: -100 до 100"));
+  Serial.println("ESP32 + ZK-5AD Motor Control");
+  Serial.println("Диапазон скорости: -100 до 100");
   delay(1000);
 }
 
 void loop() {
   // Вращение вперед на 50% скорости
-  Serial.println(F("Мотор вперед на 50%"));
+  Serial.println("Мотор вперед на 50%");
   motor.setSpeed(50);
   delay(2000);
 
   // Вращение вперед на полной скорости
-  Serial.println(F("Мотор вперед на 100%"));
+  Serial.println("Мотор вперед на 100%");
   motor.setSpeed(100);
   delay(2000);
 
   // Остановка мотора
-  Serial.println(F("Остановка мотора"));
+  Serial.println("Остановка мотора");
   motor.stop();
   delay(1000);
 
   // Вращение назад на 50% скорости
-  Serial.println(F("Мотор назад на 50%"));
+  Serial.println("Мотор назад на 50%");
   motor.setSpeed(-50);
   delay(2000);
 
   // Вращение назад на полной скорости
-  Serial.println(F("Мотор назад на 100%"));
+  Serial.println("Мотор назад на 100%");
   motor.setSpeed(-100);
   delay(2000);
 
   // Торможение мотора
-  Serial.println(F("Торможение мотора"));
+  Serial.println("Торможение мотора");
   motor.brake();
   delay(2000);
 }
