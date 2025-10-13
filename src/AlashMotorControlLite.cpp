@@ -17,12 +17,22 @@ AlashMotorControlLite::AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pi
   if (_mode == PWM_PWM) {
     _pwm_channel1 = _nextChannel++;
     _pwm_channel2 = _nextChannel++;
-    ledcSetup(_pwm_channel1, 5000, 8);
-    ledcSetup(_pwm_channel2, 5000, 8);
-    ledcAttachPin(_pin1, _pwm_channel1);
-    ledcAttachPin(_pin2, _pwm_channel2);
-    ledcWrite(_pwm_channel1, 0);
-    ledcWrite(_pwm_channel2, 0);
+
+    #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      // Новый API для ESP32 3.x
+      ledcAttach(_pin1, 5000, 8);
+      ledcAttach(_pin2, 5000, 8);
+      ledcWrite(_pin1, 0);
+      ledcWrite(_pin2, 0);
+    #else
+      // Старый API для ESP32 2.x
+      ledcSetup(_pwm_channel1, 5000, 8);
+      ledcSetup(_pwm_channel2, 5000, 8);
+      ledcAttachPin(_pin1, _pwm_channel1);
+      ledcAttachPin(_pin2, _pwm_channel2);
+      ledcWrite(_pwm_channel1, 0);
+      ledcWrite(_pwm_channel2, 0);
+    #endif
   } else {
     digitalWrite(_pin1, LOW);
     digitalWrite(_pin2, LOW);
@@ -46,9 +56,17 @@ AlashMotorControlLite::AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pi
 
 #if defined(ARDUINO_ARCH_ESP32)
   _pwm_channel = _nextChannel++;
-  ledcSetup(_pwm_channel, 5000, 8);
-  ledcAttachPin(_pin_pwm, _pwm_channel);
-  ledcWrite(_pwm_channel, 0);
+
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+    // Новый API для ESP32 3.x
+    ledcAttach(_pin_pwm, 5000, 8);
+    ledcWrite(_pin_pwm, 0);
+  #else
+    // Старый API для ESP32 2.x
+    ledcSetup(_pwm_channel, 5000, 8);
+    ledcAttachPin(_pin_pwm, _pwm_channel);
+    ledcWrite(_pwm_channel, 0);
+  #endif
 #else
   analogWrite(_pin_pwm, 0);
 #endif
@@ -62,15 +80,24 @@ switch (_mode){
     case DIR_PWM:
       digitalWrite(_pin1, HIGH);
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin_pwm, 0);
+  #else
       ledcWrite(_pwm_channel, 0);
+  #endif
 #else
       analogWrite(_pin2, 255);
 #endif
       break;
     case PWM_PWM:
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin1, 255);
+      ledcWrite(_pin2, 255);
+  #else
       ledcWrite(_pwm_channel1, 255);
       ledcWrite(_pwm_channel2, 255);
+  #endif
 #else
       analogWrite(_pin1, 255);
       analogWrite(_pin2, 255);
@@ -78,7 +105,11 @@ switch (_mode){
       break;
     case DIR_DIR_PWM:
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin_pwm, 255);
+  #else
       ledcWrite(_pwm_channel, 255);
+  #endif
 #else
       analogWrite(_pin_pwm, 255);
 #endif
@@ -99,15 +130,24 @@ void AlashMotorControlLite::stop(){
     case DIR_PWM:
       digitalWrite(_pin1, LOW);
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin_pwm, 0);
+  #else
       ledcWrite(_pwm_channel, 0);
+  #endif
 #else
       analogWrite(_pin2, 0);
 #endif
       break;
     case PWM_PWM:
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin1, 0);
+      ledcWrite(_pin2, 0);
+  #else
       ledcWrite(_pwm_channel1, 0);
       ledcWrite(_pwm_channel2, 0);
+  #endif
 #else
       analogWrite(_pin1, 0);
       analogWrite(_pin2, 0);
@@ -115,7 +155,11 @@ void AlashMotorControlLite::stop(){
       break;
     case DIR_DIR_PWM:
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+      ledcWrite(_pin_pwm, 0);
+  #else
       ledcWrite(_pwm_channel, 0);
+  #endif
 #else
       analogWrite(_pin_pwm, 0);
 #endif
@@ -149,7 +193,11 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
       if (speed >= 0){
         digitalWrite(_pin1, LOW);
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin_pwm, speed);
+  #else
         ledcWrite(_pwm_channel, speed);
+  #endif
 #else
         analogWrite(_pin2, speed);
 #endif
@@ -157,7 +205,11 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
       else{
         digitalWrite(_pin1, HIGH);
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin_pwm, -speed);
+  #else
         ledcWrite(_pwm_channel, -speed);
+  #endif
 #else
         analogWrite(_pin2, -speed);
 #endif
@@ -167,8 +219,13 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
     case PWM_PWM:
       if (speed >= 0){
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin1, 0);
+        ledcWrite(_pin2, speed);
+  #else
         ledcWrite(_pwm_channel1, 0);
         ledcWrite(_pwm_channel2, speed);
+  #endif
 #else
         analogWrite(_pin1, 0);
         analogWrite(_pin2, speed);
@@ -176,8 +233,13 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
       }
       else{
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin1, -speed);
+        ledcWrite(_pin2, 0);
+  #else
         ledcWrite(_pwm_channel1, -speed);
         ledcWrite(_pwm_channel2, 0);
+  #endif
 #else
         analogWrite(_pin1, -speed);
         analogWrite(_pin2, 0);
@@ -189,7 +251,11 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
     case DIR_DIR_PWM:
       if (speed >= 0){
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin_pwm, speed);
+  #else
         ledcWrite(_pwm_channel, speed);
+  #endif
 #else
         analogWrite(_pin_pwm, speed);
 #endif
@@ -200,7 +266,11 @@ void AlashMotorControlLite::setSpeed(int16_t speed){
       else{
 
 #if defined(ARDUINO_ARCH_ESP32)
+  #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+        ledcWrite(_pin_pwm, -speed);
+  #else
         ledcWrite(_pwm_channel, -speed);
+  #endif
 #else
         analogWrite(_pin_pwm, -speed);
 #endif
