@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Cross-platform compatibility (Arduino, ESP32)
 - Protection against incorrect usage (automatic speed limiting, copy prevention)
 - ESP32 Arduino Core 2.x and 3.x compatibility
-- Comprehensive examples (17 total) from basic to advanced
+- Comprehensive examples (18 total) from basic to advanced
 
 ## Core Architecture
 
@@ -118,7 +118,7 @@ MODE getMode() const;             // Get driver mode configuration
 
 ## Examples Structure
 
-The library includes **17 examples** organized into categories:
+The library includes **18 examples** organized into categories:
 
 ### Basic Mode Examples (4)
 Demonstrate each MODE type:
@@ -139,7 +139,7 @@ Complex ESP32-specific applications:
 - **ESP32_Mecanum_4WD_Demo** - 4-wheel mecanum omnidirectional robot
 - **ESP32_Mecanum_Serial** - Interactive serial control for mecanum
 
-### Educational Examples (7)
+### Educational Examples (8)
 Teaching library features and best practices:
 - **StopVsBrake** - Demonstrates difference between stop() and brake()
 - **GettersDemo** - Shows usage of getSpeed() and getMode()
@@ -148,6 +148,7 @@ Teaching library features and best practices:
 - **SpeedLimits** - Speed clamping and boundary testing
 - **DirectionChange** - Safe direction reversal techniques
 - **MultiMotorSync** - Synchronizing multiple motors
+- **Motor_with_IRControl** - IR remote control with proper timer conflict avoidance
 
 ### Example Conventions
 
@@ -244,6 +245,124 @@ Add another `#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(X, Y, Z)` branch
 - Must handle API version differences (2.x vs 3.x)
 - ZK-5AD driver popular in this ecosystem
 
+## Library Compatibility and Timer Conflicts
+
+### Arduino AVR Timer Conflicts (Critical Issue)
+
+**Problem:** On Arduino Uno/Nano/Mega (ATmega328P/2560), PWM functionality is provided by hardware timers. Many libraries (especially IR, tone, servo libraries) also use these timers, causing conflicts.
+
+**Symptom:** When using AlashMotorControlLite with IR libraries (like AlashIRControl), motors may stop working even though IR signals are received correctly. This happens because the IR library reconfigures Timer2 for carrier frequency generation (typically 38 kHz), breaking PWM on pins 3 and 11.
+
+### Arduino Uno/Nano PWM Pin-to-Timer Mapping
+
+| Pin | Timer | PWM Frequency | Safe with IR Libraries? |
+|-----|-------|---------------|-------------------------|
+| 3   | Timer2 | ~490 Hz | ❌ **CONFLICT** - IR libraries use Timer2 |
+| 5   | Timer0 | ~980 Hz | ✅ Safe (but may affect `millis()` if reconfigured) |
+| 6   | Timer0 | ~980 Hz | ✅ Safe (but may affect `millis()` if reconfigured) |
+| 9   | Timer1 | ~490 Hz | ✅ **RECOMMENDED** - Best choice for compatibility |
+| 10  | Timer1 | ~490 Hz | ✅ **RECOMMENDED** - Best choice for compatibility |
+| 11  | Timer2 | ~490 Hz | ❌ **CONFLICT** - IR libraries use Timer2 |
+
+### Arduino Mega 2560 PWM Pin-to-Timer Mapping
+
+| Pin | Timer | Safe with IR Libraries? |
+|-----|-------|-------------------------|
+| 2   | Timer3 | ✅ Safe |
+| 3   | Timer3 | ✅ Safe |
+| 4   | Timer0 | ✅ Safe |
+| 5   | Timer3 | ✅ Safe |
+| 6   | Timer4 | ✅ Safe |
+| 7   | Timer4 | ✅ Safe |
+| 8   | Timer4 | ✅ Safe |
+| 9   | Timer2 | ❌ **CONFLICT** |
+| 10  | Timer2 | ❌ **CONFLICT** |
+| 11  | Timer1 | ✅ Safe |
+| 12  | Timer1 | ✅ Safe |
+| 13  | Timer0 | ✅ Safe |
+| 44-46 | Timer5 | ✅ Safe |
+
+### Recommended Pin Configurations for IR Compatibility
+
+**Arduino Uno/Nano with L298N (DIR_PWM mode):**
+```cpp
+// ✅ CORRECT - PWM on Timer1 (pin 9 or 10)
+AlashMotorControlLite motor(DIR_PWM, 4, 9);   // DIR=4, PWM=9 (Timer1)
+AlashMotorControlLite motorL(DIR_PWM, 2, 9);  // DIR=2, PWM=9 (Timer1)
+AlashMotorControlLite motorR(DIR_PWM, 4, 10); // DIR=4, PWM=10 (Timer1)
+
+// ❌ WRONG - PWM on Timer2 (pin 3 or 11) - Will conflict with IR!
+AlashMotorControlLite motor(DIR_PWM, 4, 3);   // PWM=3 conflicts with IR
+AlashMotorControlLite motor(DIR_PWM, 7, 11);  // PWM=11 conflicts with IR
+```
+
+**Arduino Uno/Nano with TB6612FNG (PWM_PWM mode):**
+```cpp
+// ✅ CORRECT - Both PWM pins on Timer1
+AlashMotorControlLite motor(PWM_PWM, 9, 10);  // Both Timer1 - safe
+
+// ✅ ALSO OK - Both on Timer0 (slightly affects millis() precision)
+AlashMotorControlLite motor(PWM_PWM, 5, 6);   // Both Timer0 - acceptable
+
+// ❌ WRONG - Mixed timers or using Timer2
+AlashMotorControlLite motor(PWM_PWM, 3, 9);   // Pin 3 conflicts with IR
+AlashMotorControlLite motor(PWM_PWM, 9, 11);  // Pin 11 conflicts with IR
+```
+
+**Arduino Mega 2560:**
+```cpp
+// ✅ Use any pins EXCEPT 9 and 10 (Timer2)
+AlashMotorControlLite motor(DIR_PWM, 22, 11);  // PWM=11 (Timer1) - safe
+AlashMotorControlLite motor(PWM_PWM, 2, 3);    // Both Timer3 - safe
+AlashMotorControlLite motor(PWM_PWM, 6, 7);    // Both Timer4 - safe
+```
+
+### Compatibility with AlashIRControl
+
+The **AlashIRControl** library (https://github.com/Alash-electronics/AlashIRControl) uses hardware timers for IR carrier frequency generation:
+- **Arduino AVR:** Uses Timer2 → Conflicts with PWM on pins 3, 11
+- **ESP32:** Uses hardware timer 2 (separate from LEDC) → No conflicts
+- **ESP8266:** Uses timer interrupt → No LEDC conflicts
+
+**Solution:** See the example `Motor_with_IRControl` which demonstrates correct pin selection for simultaneous motor control and IR remote operation.
+
+### Other Libraries with Known Timer Conflicts
+
+| Library | Timer Used | Conflicting PWM Pins (Uno) | Workaround |
+|---------|------------|----------------------------|------------|
+| **IRremote** | Timer2 | 3, 11 | Use pins 5, 6, 9, 10 for motors |
+| **AlashIRControl** | Timer2 | 3, 11 | Use pins 5, 6, 9, 10 for motors |
+| **Servo** (≤2 servos) | Timer1 | 9, 10 | Use pins 5, 6 for motors OR use ServoTimer2 library |
+| **Tone** | Timer2 | 3, 11 | Use pins 5, 6, 9, 10 for motors |
+| **NewPing** (ultrasonic) | Timer2 | 3, 11 | Use pins 5, 6, 9, 10 for motors |
+
+### ESP32: No Timer Conflicts
+
+ESP32 does not have timer conflicts between motor PWM and other libraries because:
+- Motor control uses **LEDC (LED Controller) peripheral** with 16 independent channels
+- IR/Timer libraries use **hardware timers** (Timer0-3) which are separate subsystems
+- All GPIO pins can be used for PWM via LEDC
+
+**ESP32 users can safely use any available GPIO pins without worrying about conflicts.**
+
+### Debugging Timer Conflicts
+
+If motors don't work when combined with another library:
+
+1. **Check PWM pins:** Are you using pins 3 or 11 on Arduino Uno/Nano?
+2. **Test motor alone:** Comment out the other library initialization and verify motors work
+3. **Test other library alone:** Comment out motor initialization and verify other library works
+4. **Change PWM pins:** Switch to Timer1 pins (9, 10) and test again
+5. **Check library documentation:** Search for "timer" or "PWM" in the other library's docs
+
+### Example: Motor + IR Control
+
+A complete working example is provided in `examples/Motor_with_IRControl/` which demonstrates:
+- Correct pin selection for IR and motor compatibility
+- Controlling motor speed/direction with an IR remote
+- Platform-specific configurations (Arduino vs ESP32)
+- Detailed wiring diagrams and troubleshooting tips
+
 ## Repository Structure
 
 ```
@@ -251,7 +370,7 @@ AlashMotorControlLite/
 ├── src/
 │   ├── AlashMotorControlLite.h      # Class declaration, MODE enum
 │   └── AlashMotorControlLite.cpp    # Implementation with platform ifdefs
-├── examples/                         # 17 examples (see Examples Structure)
+├── examples/                         # 18 examples (see Examples Structure)
 │   ├── DIR_PWM/
 │   ├── PWM_PWM/
 │   ├── DIR_DIR_PWM/
@@ -268,7 +387,8 @@ AlashMotorControlLite/
 │   ├── AllModesDemo/
 │   ├── SpeedLimits/
 │   ├── DirectionChange/
-│   └── MultiMotorSync/
+│   ├── MultiMotorSync/
+│   └── Motor_with_IRControl/        # IR remote + motor (timer conflict demo)
 ├── library.properties                # Arduino library metadata
 ├── keywords.txt                      # IDE syntax highlighting
 ├── LICENSE                           # MIT license
@@ -288,7 +408,7 @@ The library meets all Arduino Library Manager requirements:
 - ✅ MIT License file
 - ✅ Comprehensive README.md
 - ✅ keywords.txt for IDE syntax highlighting
-- ✅ 17 working examples
+- ✅ 18 working examples
 - ✅ Public GitHub repository
 
 **Publication Process:**
