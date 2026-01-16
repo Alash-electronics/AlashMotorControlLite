@@ -35,7 +35,7 @@ class AlashMotorControlLite{
 #endif
 
   private:
-    // Запрет копирования
+    // Copy prevention
     AlashMotorControlLite(const AlashMotorControlLite&);
     AlashMotorControlLite& operator=(const AlashMotorControlLite&);
 };

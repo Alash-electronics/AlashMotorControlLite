@@ -1,72 +1,74 @@
 # AlashMotorControlLite
 
+> 🌐 **English** | **[Русский](README_ru.md)**
+
 [![Arduino](https://img.shields.io/badge/Arduino-Compatible-blue.svg)](https://www.arduino.cc/)
 [![ESP32](https://img.shields.io/badge/ESP32-Supported-green.svg)](https://www.espressif.com/)
-[![Version](https://img.shields.io/badge/version-1.0.7-orange.svg)](https://github.com/Alash-electronics/AlashMotorControlLite)
+[![Version](https://img.shields.io/badge/version-1.0.9-orange.svg)](https://github.com/Alash-electronics/AlashMotorControlLite)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Простая и мощная библиотека для управления DC моторами на Arduino и ESP32**
+**Simple and powerful library for controlling DC motors on Arduino and ESP32**
 
-Библиотека AlashMotorControlLite предоставляет универсальный интерфейс для управления DC моторами через различные драйверы (L298N, TB6612, ZK-5AD, DRV8833, BTS7960 и другие). Поддерживает Arduino, ESP32 и совместимые платформы.
+AlashMotorControlLite provides a universal interface for controlling DC motors through various drivers (L298N, TB6612, ZK-5AD, DRV8833, BTS7960, and others). Supports Arduino, ESP32, and compatible platforms.
 
-## 🚀 Основные возможности
+## 🚀 Key Features
 
-- ✅ **Простой API** - управление скоростью от -100 до 100
-- ✅ **4 режима драйверов** - поддержка всех популярных H-Bridge микросхем
-- ✅ **Кроссплатформенность** - Arduino, ESP32, совместимые платы
-- ✅ **Защита от ошибок** - автоматическое ограничение скорости
-- ✅ **ESP32 3.x готова** - поддержка нового PWM API
-- ✅ **17 примеров** - от базовых до продвинутых (меканум колеса)
-- ✅ **Русская документация** - полная поддержка русского языка
+- ✅ **Simple API** - Speed control from -100 to 100
+- ✅ **4 driver modes** - Support for all popular H-Bridge chips
+- ✅ **Cross-platform** - Arduino, ESP32, compatible boards
+- ✅ **Error protection** - Automatic speed limiting
+- ✅ **ESP32 3.x ready** - Support for new PWM API
+- ✅ **17 examples** - From basic to advanced (mecanum wheels)
+- ✅ **Bilingual documentation** - English and Русский
 
-## 📦 Установка
+## 📦 Installation
 
-### Через Arduino Library Manager (рекомендуется)
+### Via Arduino Library Manager (recommended)
 
-1. Откройте Arduino IDE
-2. **Скетч** → **Подключить библиотеку** → **Управление библиотеками**
-3. Найдите `AlashMotorControlLite`
-4. Нажмите **Установить**
-5. Перезапустите Arduino IDE
+1. Open Arduino IDE
+2. **Sketch** → **Include Library** → **Manage Libraries**
+3. Search for `AlashMotorControlLite`
+4. Click **Install**
+5. Restart Arduino IDE
 
-### Ручная установка
+### Manual installation
 
-1. Скачайте [последнюю версию](https://github.com/Alash-electronics/AlashMotorControlLite/releases)
-2. Распакуйте в папку `Arduino/libraries/`
-3. Перезапустите Arduino IDE
+1. Download the [latest release](https://github.com/Alash-electronics/AlashMotorControlLite/releases)
+2. Extract to `Arduino/libraries/` folder
+3. Restart Arduino IDE
 
-## 🎯 Быстрый старт
+## 🎯 Quick Start
 
-### Простейший пример (Arduino + L298N)
+### Simple example (Arduino + L298N)
 
 ```cpp
 #include "AlashMotorControlLite.h"
 
-// DIR_DIR_PWM режим: IN1=4, IN2=5, EN=6
+// DIR_DIR_PWM mode: IN1=4, IN2=5, EN=6
 AlashMotorControlLite motor(DIR_DIR_PWM, 4, 5, 6);
 
 void setup() {
-  // Инициализация не требуется
+  // No initialization required
 }
 
 void loop() {
-  motor.setSpeed(75);    // Вперед на 75%
+  motor.setSpeed(75);    // Forward at 75%
   delay(2000);
 
-  motor.setSpeed(-50);   // Назад на 50%
+  motor.setSpeed(-50);   // Reverse at 50%
   delay(2000);
 
-  motor.stop();          // Остановка
+  motor.stop();          // Stop
   delay(1000);
 }
 ```
 
-### ESP32 + ZK-5AD (PWM_PWM режим)
+### ESP32 + ZK-5AD (PWM_PWM mode)
 
 ```cpp
 #include "AlashMotorControlLite.h"
 
-// PWM_PWM режим: IN1=GPIO32, IN2=GPIO33
+// PWM_PWM mode: IN1=GPIO32, IN2=GPIO33
 AlashMotorControlLite motor(PWM_PWM, 32, 33);
 
 void setup() {
@@ -74,141 +76,141 @@ void setup() {
 }
 
 void loop() {
-  motor.setSpeed(100);   // Полная скорость вперед
+  motor.setSpeed(100);   // Full speed forward
   delay(2000);
 
-  motor.brake();         // Активное торможение
+  motor.brake();         // Active braking
   delay(500);
 
-  motor.setSpeed(-100);  // Полная скорость назад
+  motor.setSpeed(-100);  // Full speed reverse
   delay(2000);
 
-  motor.stop();          // Свободная остановка
+  motor.stop();          // Coast stop
   delay(1000);
 }
 ```
 
-## 🎛️ Режимы драйверов (MODE)
+## 🎛️ Driver Modes (MODE)
 
-Библиотека поддерживает 4 режима для различных типов драйверов:
+The library supports 4 modes for different driver types:
 
-| Режим | Пины | PWM | Драйверы | Описание |
-|-------|------|-----|----------|----------|
-| **DIR_PWM** | 2 | 1 | TB6612FNG, DRV8833 | 1 направление + 1 скорость |
-| **PWM_PWM** | 2 | 2 | ZK-5AD, L298N, BTS7960 | 2 PWM для двунаправленного управления |
-| **DIR_DIR_PWM** | 3 | 1 | L298N (с EN), L293D | 2 направления + 1 скорость |
-| **DIR_DIR** | 2 | 0 | Реле, простые драйверы | Только вкл/выкл без ШИМ |
+| Mode | Pins | PWM | Drivers | Description |
+|------|------|-----|---------|-------------|
+| **DIR_PWM** | 2 | 1 | TB6612FNG, DRV8833 | 1 direction + 1 speed pin |
+| **PWM_PWM** | 2 | 2 | ZK-5AD, L298N, BTS7960 | 2 PWM for bidirectional control |
+| **DIR_DIR_PWM** | 3 | 1 | L298N (with EN), L293D | 2 direction + 1 speed pin |
+| **DIR_DIR** | 2 | 0 | Relays, simple drivers | On/off only, no PWM |
 
-### Примеры подключения
+### Wiring Examples
 
-#### L298N драйвер (DIR_DIR_PWM)
+#### L298N driver (DIR_DIR_PWM)
 ```cpp
 AlashMotorControlLite motor(DIR_DIR_PWM, 4, 5, 6);
-// PIN 4 → IN1 (направление 1)
-// PIN 5 → IN2 (направление 2)
-// PIN 6 → EN  (скорость PWM)
+// PIN 4 → IN1 (direction 1)
+// PIN 5 → IN2 (direction 2)
+// PIN 6 → EN  (PWM speed)
 ```
 
-#### TB6612FNG драйвер (DIR_PWM)
+#### TB6612FNG driver (DIR_PWM)
 ```cpp
 AlashMotorControlLite motor(DIR_PWM, 4, 3);
-// PIN 4 → IN1 (направление)
-// PIN 3 → PWM (скорость)
+// PIN 4 → IN1 (direction)
+// PIN 3 → PWM (speed)
 ```
 
-#### ZK-5AD драйвер для ESP32 (PWM_PWM)
+#### ZK-5AD driver for ESP32 (PWM_PWM)
 ```cpp
 AlashMotorControlLite motor(PWM_PWM, 32, 33);
-// GPIO 32 → IN1 (PWM вперед)
-// GPIO 33 → IN2 (PWM назад)
+// GPIO 32 → IN1 (PWM forward)
+// GPIO 33 → IN2 (PWM reverse)
 ```
 
-## 📚 API Документация
+## 📚 API Documentation
 
-### Конструкторы
+### Constructors
 
 ```cpp
-// Для режимов: DIR_PWM, PWM_PWM, DIR_DIR (2 пина)
+// For modes: DIR_PWM, PWM_PWM, DIR_DIR (2 pins)
 AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pin2);
 
-// Для режима: DIR_DIR_PWM (3 пина)
+// For mode: DIR_DIR_PWM (3 pins)
 AlashMotorControlLite(MODE mode, uint8_t pin1, uint8_t pin2, uint8_t pin_pwm);
 ```
 
-### Основные методы
+### Core Methods
 
 #### `void setSpeed(int16_t speed)`
-Установка скорости и направления мотора
+Set motor speed and direction
 
-**Параметры:**
-- `speed` - скорость от **-100 до 100**
-  - `-100` до `-1` = движение назад
-  - `0` = остановка
-  - `1` до `100` = движение вперед
+**Parameters:**
+- `speed` - Speed from **-100 to 100**
+  - `-100` to `-1` = reverse motion
+  - `0` = stop
+  - `1` to `100` = forward motion
 
-**Пример:**
+**Example:**
 ```cpp
-motor.setSpeed(75);    // Вперед на 75%
-motor.setSpeed(-50);   // Назад на 50%
-motor.setSpeed(0);     // Остановка
+motor.setSpeed(75);    // Forward at 75%
+motor.setSpeed(-50);   // Reverse at 50%
+motor.setSpeed(0);     // Stop
 ```
 
 #### `void stop()`
-Свободная остановка мотора (coast stop)
+Coast stop (free-running stop)
 
-Мотор отключается и останавливается по инерции. Используется для:
-- Плавной остановки без нагрузки на механику
-- Экономии энергии
-- Обычной остановки в конце движения
+Motor is disabled and stops by inertia. Used for:
+- Smooth stop without mechanical stress
+- Energy saving
+- Normal stop at end of movement
 
-**Пример:**
+**Example:**
 ```cpp
 motor.setSpeed(100);
 delay(2000);
-motor.stop();  // Плавная остановка
+motor.stop();  // Smooth stop
 ```
 
 #### `void brake()`
-Активное торможение мотора
+Active braking
 
-Мотор активно тормозит (короткое замыкание обмоток). Используется для:
-- Быстрой остановки
-- Удержания позиции под нагрузкой
-- Точной остановки
+Motor actively brakes (short-circuit winding). Used for:
+- Quick stop
+- Position holding under load
+- Precise stopping
 
-**Пример:**
+**Example:**
 ```cpp
 motor.setSpeed(100);
 delay(2000);
-motor.brake();  // Резкое торможение
+motor.brake();  // Hard brake
 ```
 
 #### `int16_t getSpeed()`
-Получение текущей скорости мотора
+Get current motor speed
 
-**Возвращает:** Текущую скорость от -100 до 100
+**Returns:** Current speed from -100 to 100
 
-**Пример:**
+**Example:**
 ```cpp
 motor.setSpeed(75);
-int speed = motor.getSpeed();  // Вернет 75
+int speed = motor.getSpeed();  // Returns 75
 Serial.println(speed);
 ```
 
 #### `MODE getMode()`
-Получение текущего режима драйвера
+Get current driver mode
 
-**Возвращает:** Значение MODE enum
+**Returns:** MODE enum value
 
-**Пример:**
+**Example:**
 ```cpp
 MODE mode = motor.getMode();
 if (mode == PWM_PWM) {
-  Serial.println("Режим PWM_PWM");
+  Serial.println("PWM_PWM mode");
 }
 ```
 
-## 🔌 Схемы подключения
+## 🔌 Wiring Diagrams
 
 ### Arduino Uno + L298N
 
@@ -229,7 +231,7 @@ GND        →  GND
             GND  → Power Supply -
 ```
 
-### ESP32 + ZK-5AD (2 мотора)
+### ESP32 + ZK-5AD (2 motors)
 
 ```
 ESP32              ZK-5AD Driver
@@ -249,9 +251,9 @@ GND       →  GND
             GND     → Power GND
 ```
 
-## 💡 Примеры использования
+## 💡 Usage Examples
 
-### Плавный разгон и торможение
+### Smooth acceleration and deceleration
 
 ```cpp
 #include "AlashMotorControlLite.h"
@@ -271,14 +273,14 @@ void smoothSpeed(int target, int delayMs) {
 void setup() {}
 
 void loop() {
-  smoothSpeed(100, 20);   // Плавный разгон за 2 секунды
+  smoothSpeed(100, 20);   // Smooth acceleration over 2 seconds
   delay(2000);
-  smoothSpeed(0, 20);     // Плавное торможение
+  smoothSpeed(0, 20);     // Smooth deceleration
   delay(1000);
 }
 ```
 
-### Управление двумя моторами (робот)
+### Two motor control (robot)
 
 ```cpp
 #include "AlashMotorControlLite.h"
@@ -304,18 +306,18 @@ void stopAll() {
 void setup() {}
 
 void loop() {
-  moveForward(70);    // Вперед
+  moveForward(70);    // Forward
   delay(2000);
 
-  turnRight(50);      // Поворот направо
+  turnRight(50);      // Turn right
   delay(1000);
 
-  stopAll();          // Остановка
+  stopAll();          // Stop
   delay(1000);
 }
 ```
 
-### Меканум колеса (4WD)
+### Mecanum wheels (4WD)
 
 ```cpp
 #include "AlashMotorControlLite.h"
@@ -340,88 +342,90 @@ void mecanumDrive(int vx, int vy, int rotation) {
 void setup() {}
 
 void loop() {
-  mecanumDrive(50, 0, 0);     // Вперед
+  mecanumDrive(50, 0, 0);     // Forward
   delay(2000);
 
-  mecanumDrive(0, 50, 0);     // Страфинг влево
+  mecanumDrive(0, 50, 0);     // Strafe left
   delay(2000);
 
-  mecanumDrive(0, 0, 30);     // Поворот на месте
+  mecanumDrive(0, 0, 30);     // Rotate in place
   delay(2000);
 }
 ```
 
-## 📖 Встроенные примеры
+## 📖 Built-in Examples
 
-После установки библиотеки примеры доступны в Arduino IDE:
-**Файл → Примеры → AlashMotorControlLite**
+After installing the library, examples are available in Arduino IDE:
+**File → Examples → AlashMotorControlLite**
 
-### Базовые примеры (изучение API)
+> 💡 **Note:** All examples are available in both English and Russian. Look for files with `_ru` suffix for Russian versions.
 
-| Пример | Описание |
-|--------|----------|
-| **StopVsBrake** | Разница между stop() и brake() |
-| **GettersDemo** | Использование getSpeed() и getMode() |
-| **SmoothSpeed** | Плавное изменение скорости (ramping) |
-| **AllModesDemo** | Сравнение всех 4 режимов драйверов |
-| **SpeedLimits** | Автоматическое ограничение скорости |
-| **DirectionChange** | Безопасная смена направления |
-| **MultiMotorSync** | Синхронизация нескольких моторов |
+### Basic Examples (learning API)
 
-### Примеры по драйверам
+| Example | Description |
+|---------|-------------|
+| **StopVsBrake** | Difference between stop() and brake() |
+| **GettersDemo** | Using getSpeed() and getMode() |
+| **SmoothSpeed** | Smooth speed changes (ramping) |
+| **AllModesDemo** | Comparison of all 4 driver modes |
+| **SpeedLimits** | Speed clamping and boundary testing |
+| **DirectionChange** | Safe direction reversal techniques |
+| **MultiMotorSync** | Synchronizing multiple motors |
 
-| Пример | Режим | Драйвер |
-|--------|-------|---------|
+### Driver-Specific Examples
+
+| Example | Mode | Driver |
+|---------|------|---------|
 | **DIR_PWM** | DIR_PWM | TB6612FNG, DRV8833 |
-| **DIR_PWM_DualMotor** | DIR_PWM | 2 мотора TB6612FNG |
-| **PWM_PWM_DualMotor** | PWM_PWM | 2 мотора общий |
+| **DIR_PWM_DualMotor** | DIR_PWM | 2 motors TB6612FNG |
+| **PWM_PWM_DualMotor** | PWM_PWM | 2 motors common |
 | **DIR_DIR_PWM** | DIR_DIR_PWM | L298N |
-| **DIR_DIR_PWM_DualMotor** | DIR_DIR_PWM | 2 мотора L298N |
-| **DIR_DIR_PWM_pot** | DIR_DIR_PWM | Управление потенциометром |
+| **DIR_DIR_PWM_DualMotor** | DIR_DIR_PWM | 2 motors L298N |
+| **DIR_DIR_PWM_pot** | DIR_DIR_PWM | Potentiometer control |
 
-### ESP32 специализированные
+### ESP32 Specialized
 
-| Пример | Описание |
-|--------|----------|
-| **ESP32_ZK5AD_SingleMotor** | 1 мотор на ESP32 + ZK-5AD |
-| **ESP32_ZK5AD_DualMotor** | 2 мотора на ESP32 + ZK-5AD |
-| **ESP32_Mecanum_4WD_Demo** | Меканум робот (автодемо) |
-| **ESP32_Mecanum_Serial** | Меканум робот (управление) |
+| Example | Description |
+|---------|-------------|
+| **ESP32_ZK5AD_SingleMotor** | 1 motor on ESP32 + ZK-5AD |
+| **ESP32_ZK5AD_DualMotor** | 2 motors on ESP32 + ZK-5AD |
+| **ESP32_Mecanum_4WD_Demo** | Mecanum robot (auto demo) |
+| **ESP32_Mecanum_Serial** | Mecanum robot (manual control) |
 
-## ❓ FAQ (Часто задаваемые вопросы)
+## ❓ FAQ (Frequently Asked Questions)
 
-### Какой режим выбрать для моего драйвера?
+### Which mode should I choose for my driver?
 
-- **L298N** → `DIR_DIR_PWM` (если используете EN пин) или `PWM_PWM`
+- **L298N** → `DIR_DIR_PWM` (if using EN pin) or `PWM_PWM`
 - **TB6612FNG** → `DIR_PWM`
 - **ZK-5AD** → `PWM_PWM`
 - **DRV8833** → `DIR_PWM`
 - **BTS7960** → `PWM_PWM`
-- **Реле** → `DIR_DIR`
+- **Relays** → `DIR_DIR`
 
-### Почему мотор не вращается?
+### Why isn't my motor rotating?
 
-1. Проверьте питание драйвера (должно быть достаточным для мотора)
-2. Убедитесь, что выбран правильный MODE
-3. Проверьте подключение пинов
-4. На ESP32: убедитесь, что используете не только INPUT пины
-5. Попробуйте setSpeed(100) для максимальной скорости
+1. Check driver power supply (must be sufficient for the motor)
+2. Make sure the correct MODE is selected
+3. Check pin connections
+4. On ESP32: ensure you're not using input-only pins
+5. Try setSpeed(100) for maximum speed
 
-### Мотор вращается в неправильную сторону
+### Motor rotates in the wrong direction
 
-Поменяйте местами провода мотора (M+ и M-) или поменяйте pin1 и pin2 в конструкторе:
+Swap motor wires (M+ and M-) or swap pin1 and pin2 in the constructor:
 
 ```cpp
-// Было
+// Was
 AlashMotorControlLite motor(PWM_PWM, 32, 33);
 
-// Стало (инвертировано)
+// Now (inverted)
 AlashMotorControlLite motor(PWM_PWM, 33, 32);
 ```
 
-### Как управлять более чем 2 моторами?
+### How to control more than 2 motors?
 
-Создайте несколько объектов:
+Create multiple objects:
 
 ```cpp
 AlashMotorControlLite motor1(PWM_PWM, 32, 33);
@@ -430,51 +434,51 @@ AlashMotorControlLite motor3(PWM_PWM, 19, 18);
 AlashMotorControlLite motor4(PWM_PWM, 17, 16);
 ```
 
-ESP32 поддерживает до 16 PWM каналов.
+ESP32 supports up to 16 PWM channels.
 
-### В чем разница между stop() и brake()?
+### What's the difference between stop() and brake()?
 
-- **stop()** - свободная остановка (выбег по инерции), меньше нагрузка
-- **brake()** - активное торможение (быстрая остановка), больше нагрузка
+- **stop()** - Coast stop (inertia), less stress
+- **brake()** - Active braking (quick stop), more stress
 
-Используйте `stop()` для обычной остановки, `brake()` когда нужна быстрая остановка.
+Use `stop()` for normal stopping, `brake()` when quick stop is needed.
 
-### Поддерживается ли ESP32-S3 / ESP32-C3?
+### Is ESP32-S3 / ESP32-C3 supported?
 
-Да, библиотека работает на всех вариантах ESP32 (ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C6).
+Yes, the library works on all ESP32 variants (ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C6).
 
-### Можно ли использовать с Servo библиотекой?
+### Can I use it with the Servo library?
 
-Да, но на Arduino будьте осторожны с PWM пинами - Servo и ШИМ могут конфликтовать на одних таймерах. На ESP32 проблем нет.
+Yes, but on Arduino be careful with PWM pins - Servo and PWM may conflict on the same timers. On ESP32 there are no issues.
 
-## 🔧 Расширенные возможности
+## 🔧 Advanced Features
 
-### Плавный реверс (безопасная смена направления)
+### Smooth reverse (safe direction change)
 
 ```cpp
 void safeReverse(int newSpeed) {
-  // Текущая скорость
+  // Current speed
   int current = motor.getSpeed();
 
-  // Если разные знаки - нужен реверс
+  // If different signs - need reverse
   if ((current > 0 && newSpeed < 0) || (current < 0 && newSpeed > 0)) {
-    // Плавно до нуля
+    // Smoothly to zero
     while (abs(motor.getSpeed()) > 0) {
       int speed = motor.getSpeed();
       motor.setSpeed(speed > 0 ? speed - 1 : speed + 1);
       delay(10);
     }
 
-    // Активное торможение
+    // Active braking
     motor.brake();
     delay(300);
 
-    // Пауза
+    // Pause
     motor.stop();
     delay(200);
   }
 
-  // Плавно до новой скорости
+  // Smoothly to new speed
   while (motor.getSpeed() != newSpeed) {
     int speed = motor.getSpeed();
     int step = (newSpeed > speed) ? 1 : -1;
@@ -484,19 +488,19 @@ void safeReverse(int newSpeed) {
 }
 ```
 
-### Автоматическая калибровка (поиск нуля)
+### Automatic calibration (finding minimum speed)
 
 ```cpp
 void findMinSpeed() {
-  Serial.println("Поиск минимальной скорости...");
+  Serial.println("Finding minimum speed...");
 
   for (int speed = 0; speed <= 100; speed++) {
     motor.setSpeed(speed);
     delay(100);
 
-    // Здесь можно добавить проверку энкодера
-    // если мотор начал вращаться - это минимум
-    Serial.print("Тест: ");
+    // Here you can add encoder check
+    // if motor started rotating - this is minimum
+    Serial.print("Test: ");
     Serial.println(speed);
   }
 
@@ -504,19 +508,19 @@ void findMinSpeed() {
 }
 ```
 
-## 🛠️ Совместимость
+## 🛠️ Compatibility
 
-### Поддерживаемые платформы
+### Supported Platforms
 
 - ✅ Arduino Uno, Nano, Mega
 - ✅ Arduino Leonardo, Pro Mini
-- ✅ ESP32 (все варианты)
+- ✅ ESP32 (all variants)
 - ✅ ESP8266
-- ✅ STM32 (с Arduino Core)
+- ✅ STM32 (with Arduino Core)
 - ✅ Teensy
-- ✅ Другие Arduino-совместимые платы
+- ✅ Other Arduino-compatible boards
 
-### Поддерживаемые драйверы
+### Supported Drivers
 
 - ✅ L298N, L293D
 - ✅ TB6612FNG
@@ -525,44 +529,49 @@ void findMinSpeed() {
 - ✅ BTS7960
 - ✅ MX1508, MX1919
 - ✅ VNH2SP30, VNH5019
-- ✅ Любые H-Bridge драйверы
+- ✅ Any H-Bridge drivers
 
 ## 📝 Changelog
 
+### Version 1.0.9
+- ✅ Bilingual library support (English/Русский)
+- ✅ All examples available in two languages
+- ✅ Improved documentation
+
 ### Version 1.0.7
-- ✅ Поддержка ESP32 Arduino Core 3.x (новый PWM API)
-- ✅ Добавлены методы getSpeed() и getMode()
-- ✅ Добавлен метод stop() (отдельно от brake)
-- ✅ Защита от копирования класса
-- ✅ Исправлен порядок параметров конструктора
-- ✅ 17 примеров (включая меканум колеса)
-- ✅ Улучшенная документация
+- ✅ ESP32 Arduino Core 3.x support (new PWM API)
+- ✅ Added getSpeed() and getMode() methods
+- ✅ Added stop() method (separate from brake)
+- ✅ Copy protection for class
+- ✅ Fixed constructor parameter order
+- ✅ 17 examples (including mecanum wheels)
+- ✅ Improved documentation
 
 ### Version 1.0.6
-- Базовая функциональность
-- Поддержка 4 режимов
-- ESP32 2.x поддержка
+- Basic functionality
+- Support for 4 modes
+- ESP32 2.x support
 
-## 🤝 Поддержка и контакты
+## 🤝 Support and Contacts
 
-- 🌐 **Сайт:** [alash-electronics.kz](https://alash-electronics.kz/)
+- 🌐 **Website:** [alash-electronics.kz](https://alash-electronics.kz/)
 - 💬 **GitHub:** [Issues](https://github.com/Alash-electronics/AlashMotorControlLite/issues)
 - 📧 **Email:** support@alash-electronics.kz
-- 📖 **Документация:** [Wiki](https://github.com/Alash-electronics/AlashMotorControlLite/wiki)
-- 🎓 **Обучение:** [Проекты и туториалы](https://alash-electronics.kz/blogs/wiki)
+- 📖 **Documentation:** [Wiki](https://github.com/Alash-electronics/AlashMotorControlLite/wiki)
+- 🎓 **Tutorials:** [Projects and tutorials](https://alash-electronics.kz/blogs/wiki)
 
-## 📄 Лицензия
+## 📄 License
 
-MIT License - см. файл [LICENSE](LICENSE)
+MIT License - see [LICENSE](LICENSE) file
 
-## 🌟 Благодарности
+## 🌟 Acknowledgments
 
-Спасибо всем, кто использует и улучшает эту библиотеку!
+Thanks to everyone using and improving this library!
 
 ---
 
-**Сделано с ❤️ в Казахстане | Alash Engineering**
+**Made with ❤️ in Kazakhstan | Alash Engineering**
 
-## Ключевые слова для поиска
+## Keywords for search
 
 Arduino motor control, ESP32 motor driver, DC motor library, L298N Arduino, TB6612FNG library, PWM motor control, H-bridge Arduino, motor driver library, Arduino robot, ESP32 robot control, mecanum wheels, dual motor control, Arduino motor shield, ZK-5AD driver, DRV8833 Arduino, BTS7960 library, motor control library, Arduino DC motor, ESP32 PWM, motor speed control

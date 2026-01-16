@@ -1,0 +1,43 @@
+/*
+ * Language: Қазақ | English: ../EN/PWM_PWM_DualMotor/ | Русский: ../RU/PWM_PWM_DualMotor/
+ *
+ * TODO: Translate comments to Kazakh
+ *
+ * Этот код демонстрирует управление двумя моторами с использованием библиотеки AlashMotorControlLite.
+ * Устанавливаются различные скорости вращения для каждого мотора с задержками между изменениями скорости.
+ * Код написан для Alash engineering.
+ */
+#include "AlashMotorControlLite.h"
+// Создаем объекты motorLeft и motorRight с режимом PWM_PWM
+// Пины для motorLeft: PWM1 = 9, PWM2 = 10
+// Пины для motorRight: PWM1 = 5, PWM2 = 6
+AlashMotorControlLite motorLeft(PWM_PWM, 9, 10);
+AlashMotorControlLite motorRight(PWM_PWM, 5, 6);
+void setup() {
+  // Нет инициализации в этой функции, оставлена пустой
+}
+void loop() {
+  motorLeft.setSpeed(50);   // Вращение вперед на 50% скорости для левого мотора
+  motorRight.setSpeed(50);  // Вращение вперед на 50% скорости для правого мотора
+  delay(1000);              // Задержка 1 секунда
+
+  motorLeft.setSpeed(100);  // Вращение вперед на полной скорости для левого мотора
+  motorRight.setSpeed(100); // Вращение вперед на полной скорости для правого мотора
+  delay(1000);              // Задержка 1 секунда
+
+  motorLeft.stop();         // Остановка левого мотора
+  motorRight.stop();        // Остановка правого мотора
+  delay(1000);              // Задержка 1 секунда
+
+  motorLeft.setSpeed(-50);  // Вращение назад на 50% скорости для левого мотора
+  motorRight.setSpeed(-50); // Вращение назад на 50% скорости для правого мотора
+  delay(1000);              // Задержка 1 секунда
+
+  motorLeft.setSpeed(-100); // Вращение назад на полной скорости для левого мотора
+  motorRight.setSpeed(-100);// Вращение назад на полной скорости для правого мотора
+  delay(1000);              // Задержка 1 секунда
+
+  motorLeft.brake();        // Торможение левого мотора
+  motorRight.brake();       // Торможение правого мотора
+  delay(1000);              // Задержка 1 секунда
+}

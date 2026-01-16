@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AlashMotorControlLite** is an Arduino library for controlling DC motors through various motor driver chips. The library provides a unified API that abstracts different motor driver configurations, supporting both Arduino and ESP32 platforms.
 
-**Current Version:** 1.0.9
+**Current Version:** 1.1.0
 **Repository:** https://github.com/Alash-electronics/AlashMotorControlLite
 **License:** MIT
 **Status:** Ready for Arduino Library Manager
@@ -17,7 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Cross-platform compatibility (Arduino, ESP32)
 - Protection against incorrect usage (automatic speed limiting, copy prevention)
 - ESP32 Arduino Core 2.x and 3.x compatibility
-- Comprehensive examples (17 total) from basic to advanced
+- Multilingual support (English, Russian, Kazakh)
+- Comprehensive examples (17 total × 3 languages) from basic to advanced
 
 ## Core Architecture
 
@@ -118,28 +119,60 @@ MODE getMode() const;             // Get driver mode configuration
 
 ## Examples Structure
 
-The library includes **17 examples** organized into categories:
+The library includes **17 examples** available in **3 languages** (51 total files):
 
-### Basic Mode Examples (4)
+### Multilingual Organization
+
+Examples are organized in language-specific folders that appear as separate sections in Arduino IDE:
+- **examples/EN/** - English comments and Serial output
+- **examples/RU/** - Russian comments and Serial output (Русский)
+- **examples/KZ/** - Kazakh comments and Serial output (Қазақ)
+
+Each language folder contains identical examples with localized comments and strings.
+
+### Arduino IDE Display
+
+When installed, examples appear in Arduino IDE as:
+```
+AlashMotorControlLite →
+  ├─ EN →
+  │   ├─ AllModesDemo
+  │   ├─ DIR_PWM
+  │   └─ ... (17 examples in English)
+  ├─ RU →
+  │   ├─ AllModesDemo
+  │   ├─ DIR_PWM
+  │   └─ ... (17 examples in Russian)
+  └─ KZ →
+      ├─ AllModesDemo
+      ├─ DIR_PWM
+      └─ ... (17 examples in Kazakh)
+```
+
+### Example Categories
+
+**Basic Mode Examples (4):**
 Demonstrate each MODE type:
 - **DIR_PWM** - Most common mode (L298N-style)
 - **PWM_PWM** - Dual PWM mode (TB6612FNG-style)
 - **DIR_DIR_PWM** - Three-pin mode (L293D-style)
 - **DIR_DIR** - Binary control (no PWM)
 
-### Driver-Specific Examples (4)
+**Driver-Specific Examples (6):**
 Practical wiring for popular drivers:
-- **L298N_Basic** - Popular dual H-bridge module
-- **TB6612FNG_Dual** - Compact dual motor driver
-- **ZK_5AD_Dual** - Two motors with single ZK-5AD
-- **DRV8833_Dual** - Low-voltage dual motor driver
+- **DIR_PWM_DualMotor** - Two motors with TB6612FNG
+- **DIR_DIR_PWM_DualMotor** - Two motors with L298N
+- **DIR_DIR_PWM_pot** - Potentiometer speed control
+- **PWM_PWM_DualMotor** - Dual motor generic setup
+- **ESP32_ZK5AD_SingleMotor** - Single motor on ESP32
+- **ESP32_ZK5AD_DualMotor** - Two motors with ZK-5AD
 
-### ESP32 Advanced Examples (2)
+**ESP32 Advanced Examples (2):**
 Complex ESP32-specific applications:
 - **ESP32_Mecanum_4WD_Demo** - 4-wheel mecanum omnidirectional robot
 - **ESP32_Mecanum_Serial** - Interactive serial control for mecanum
 
-### Educational Examples (7)
+**Educational Examples (5):**
 Teaching library features and best practices:
 - **StopVsBrake** - Demonstrates difference between stop() and brake()
 - **GettersDemo** - Shows usage of getSpeed() and getMode()
@@ -151,11 +184,14 @@ Teaching library features and best practices:
 
 ### Example Conventions
 
-- All examples include Russian comments (target audience)
-- Serial output at 115200 baud
-- Use `#if defined(ARDUINO_ARCH_ESP32)` for platform-specific code
-- Include detailed connection diagrams in comments
-- Demonstrate proper usage patterns (smooth ramping, synchronized multi-motor control, etc.)
+- **Multilingual support:** Each example available in EN, RU, and KZ
+- **Language headers:** Each file includes navigation links to other language versions
+- **Serial output at 115200 baud**
+- **Platform-specific code:** Uses `#if defined(ARDUINO_ARCH_ESP32)` conditionals
+- **Detailed connection diagrams** in file header comments
+- **F() macro usage:** ALL string literals wrapped in F() for Arduino Uno RAM optimization
+- **Box-drawing characters** for visual formatting (═, ║, ╔, ╗, ╚, ╝)
+- **Demonstrate proper patterns:** Smooth ramping, synchronized multi-motor control, etc.
 
 ## Building and Testing
 
@@ -182,7 +218,7 @@ This is an Arduino library. No traditional build system.
 
 - **library.properties**: Arduino library metadata (version, author, category)
   - Update `version` field when releasing
-  - Current: 1.0.9
+  - Current: 1.1.0
 
 - **keywords.txt**: Arduino IDE syntax highlighting
   - Format: `keyword<TAB>KEYWORD_TYPE`
@@ -225,8 +261,10 @@ Add another `#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(X, Y, Z)` branch
 
 ## Language and Style
 
-- **Comments in Russian** for target audience (Kazakhstan/Russia market)
+- **Source code comments in English** (AlashMotorControlLite.h and .cpp)
 - **Code in English** (class names, variables, functions)
+- **Examples multilingual:** Available in EN (English), RU (Russian), and KZ (Kazakh) folders
+- **Target audience:** International makers, Kazakhstan/Russia market (hence RU support)
 - Examples use extensive Serial.println() with box-drawing characters for visual formatting
 - Maintain consistent indentation (2 spaces in .cpp/.h files)
 - Use descriptive variable names even if longer
@@ -249,30 +287,36 @@ Add another `#if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(X, Y, Z)` branch
 ```
 AlashMotorControlLite/
 ├── src/
-│   ├── AlashMotorControlLite.h      # Class declaration, MODE enum
-│   └── AlashMotorControlLite.cpp    # Implementation with platform ifdefs
-├── examples/                         # 17 examples (see Examples Structure)
-│   ├── DIR_PWM/
-│   ├── PWM_PWM/
-│   ├── DIR_DIR_PWM/
-│   ├── DIR_DIR/
-│   ├── L298N_Basic/
-│   ├── TB6612FNG_Dual/
-│   ├── ZK_5AD_Dual/
-│   ├── DRV8833_Dual/
-│   ├── ESP32_Mecanum_4WD_Demo/
-│   ├── ESP32_Mecanum_Serial/
-│   ├── StopVsBrake/
-│   ├── GettersDemo/
-│   ├── SmoothSpeed/
-│   ├── AllModesDemo/
-│   ├── SpeedLimits/
-│   ├── DirectionChange/
-│   └── MultiMotorSync/
+│   ├── AlashMotorControlLite.h      # Class declaration, MODE enum (English comments)
+│   └── AlashMotorControlLite.cpp    # Implementation with platform ifdefs (English comments)
+├── examples/                         # Multilingual examples (51 total files)
+│   ├── EN/                           # English examples (17 examples)
+│   │   ├── AllModesDemo/
+│   │   ├── DIR_PWM/
+│   │   ├── DIR_PWM_DualMotor/
+│   │   ├── DIR_DIR_PWM/
+│   │   ├── DIR_DIR_PWM_DualMotor/
+│   │   ├── DIR_DIR_PWM_pot/
+│   │   ├── PWM_PWM_DualMotor/
+│   │   ├── DirectionChange/
+│   │   ├── ESP32_Mecanum_4WD_Demo/
+│   │   ├── ESP32_Mecanum_Serial/
+│   │   ├── ESP32_ZK5AD_DualMotor/
+│   │   ├── ESP32_ZK5AD_SingleMotor/
+│   │   ├── GettersDemo/
+│   │   ├── MultiMotorSync/
+│   │   ├── SmoothSpeed/
+│   │   ├── SpeedLimits/
+│   │   └── StopVsBrake/
+│   ├── RU/                           # Russian examples (17 examples)
+│   │   └── [same 17 examples as EN/]
+│   └── KZ/                           # Kazakh examples (17 examples)
+│       └── [same 17 examples as EN/]
 ├── library.properties                # Arduino library metadata
 ├── keywords.txt                      # IDE syntax highlighting
 ├── LICENSE                           # MIT license
-├── README.md                         # SEO-optimized user documentation
+├── README.md                         # English documentation (primary)
+├── README_ru.md                      # Russian documentation
 ├── CLAUDE.md                         # This file - AI assistant guide
 ├── PUBLISHING.md                     # Detailed Arduino Library Manager guide
 └── QUICK_PUBLISH.md                  # Quick 3-step publishing guide
@@ -292,9 +336,9 @@ The library meets all Arduino Library Manager requirements:
 - ✅ Public GitHub repository
 
 **Publication Process:**
-1. Create git tag: `git tag -a 1.0.9 -m "Version 1.0.9"`
-2. Push tag: `git push origin 1.0.9`
-3. Create GitHub Release with tag 1.0.9
+1. Create git tag: `git tag -a 1.1.0 -m "Version 1.1.0"`
+2. Push tag: `git push origin 1.1.0`
+3. Create GitHub Release with tag 1.1.0
 4. Wait 24-48 hours for automatic indexing
 
 See PUBLISHING.md for detailed step-by-step instructions.
@@ -435,7 +479,15 @@ Serial.println("Motor forward");
 
 ## Version History
 
-### v1.0.9 (Current - Ready for Library Manager)
+### v1.1.0 (Current - Multilingual Release)
+- ✅ **Multilingual support:** Examples now available in EN, RU, and KZ
+- ✅ **Source code in English:** All comments in .h and .cpp files translated to English
+- ✅ **Bilingual README:** README.md (English primary) + README_ru.md (Russian)
+- ✅ **New examples structure:** EN/, RU/, KZ/ folders (51 total example files)
+- ✅ **Improved accessibility:** Users can choose their preferred language in Arduino IDE
+- ✅ **F() macros preserved:** All string literals wrapped for Arduino Uno RAM optimization
+
+### v1.0.9 (Previous)
 - ✅ Library maintenance release
 - ✅ Removed examples with external dependencies (Servo, IR libraries)
 - ✅ Clean standalone library with 17 self-contained examples
