@@ -1,10 +1,10 @@
 # AlashMotorControlLite
 
-> 🌐 **English** | **[Русский](README_ru.md)**
+> 🌐 **English** | [Қазақша](README_kz.md) | [Русский](README_ru.md)
 
 [![Arduino](https://img.shields.io/badge/Arduino-Compatible-blue.svg)](https://www.arduino.cc/)
 [![ESP32](https://img.shields.io/badge/ESP32-Supported-green.svg)](https://www.espressif.com/)
-[![Version](https://img.shields.io/badge/version-1.0.9-orange.svg)](https://github.com/Alash-electronics/AlashMotorControlLite)
+[![Version](https://img.shields.io/badge/version-1.1.0-orange.svg)](https://github.com/Alash-electronics/AlashMotorControlLite)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Simple and powerful library for controlling DC motors on Arduino and ESP32**
@@ -19,7 +19,7 @@ AlashMotorControlLite provides a universal interface for controlling DC motors t
 - ✅ **Error protection** - Automatic speed limiting
 - ✅ **ESP32 3.x ready** - Support for new PWM API
 - ✅ **17 examples** - From basic to advanced (mecanum wheels)
-- ✅ **Bilingual documentation** - English and Русский
+- ✅ **Trilingual documentation** - English, Қазақша, and Русский
 
 ## 📦 Installation
 
@@ -358,7 +358,7 @@ void loop() {
 After installing the library, examples are available in Arduino IDE:
 **File → Examples → AlashMotorControlLite**
 
-> 💡 **Note:** All examples are available in both English and Russian. Look for files with `_ru` suffix for Russian versions.
+> 💡 **Note:** All examples are available in three languages (EN/KZ/RU). In Arduino IDE, select the folder with your preferred language: **EN** (English), **KZ** (Қазақша), or **RU** (Русский).
 
 ### Basic Examples (learning API)
 
@@ -533,10 +533,15 @@ void findMinSpeed() {
 
 ## 📝 Changelog
 
-### Version 1.0.9
-- ✅ Bilingual library support (English/Русский)
-- ✅ All examples available in two languages
+### Version 1.1.0
+- ✅ Trilingual library support (English/Қазақша/Русский)
+- ✅ All examples available in three languages
+- ✅ Source code in English
 - ✅ Improved documentation
+
+### Version 1.0.9
+- ✅ Bilingual support (English/Русский)
+- ✅ Library maintenance
 
 ### Version 1.0.7
 - ✅ ESP32 Arduino Core 3.x support (new PWM API)
