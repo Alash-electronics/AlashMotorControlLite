@@ -1,0 +1,25 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build artifacts
+*.o
+*.a
+*.hex
+*.elf
+*.bin
