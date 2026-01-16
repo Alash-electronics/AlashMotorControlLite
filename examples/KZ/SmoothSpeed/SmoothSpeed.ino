@@ -1,76 +1,75 @@
 // Language: Қазақ | English: ../EN/SmoothSpeed/ | Русский: ../RU/SmoothSpeed/
-// TODO: Translate comments and strings to Kazakh
 /*
- * Пример демонстрирует плавное изменение скорости (Ramping)
+ * Мысал жылдамдықтың тегіс өзгеруін көрсетеді (Ramping)
  *
- * Плавное изменение скорости важно для:
- * - Защиты механики от рывков и ударных нагрузок
- * - Продления срока службы моторов и редукторов
- * - Предотвращения проскальзывания колес
- * - Плавного движения робота
- * - Снижения пикового потребления тока
+ * Жылдамдықтың тегіс өзгеруі маңызды:
+ * - Механиканы секірістер мен соққылық жүктемелерден қорғау үшін
+ * - Қозғалтқыштар мен редукторлардың қызмет ету мерзімін ұзарту үшін
+ * - Дөңгелектердің сырғуын болдырмау үшін
+ * - Роботтың тегіс қозғалысы үшін
+ * - Ток тұтынудың шыңын төмендету үшін
  *
- * Подключение:
- * Arduino: Motor DIR -> Pin 4, PWM -> Pin 3 (режим DIR_PWM)
- * ESP32:   Motor IN1 -> GPIO 32, IN2 -> GPIO 33 (режим PWM_PWM)
+ * Қосылу:
+ * Arduino: Motor DIR -> Pin 4, PWM -> Pin 3 (DIR_PWM режимі)
+ * ESP32:   Motor IN1 -> GPIO 32, IN2 -> GPIO 33 (PWM_PWM режимі)
  *
- * Код написан для Alash engineering
+ * Код Alash engineering үшін жазылды
  */
 
 #include "AlashMotorControlLite.h"
 
-// Выберите режим для вашей платформы:
+// Платформаңыз үшін режимді таңдаңыз:
 #if defined(ARDUINO_ARCH_ESP32)
   AlashMotorControlLite motor(PWM_PWM, 32, 33);
 #else
   AlashMotorControlLite motor(DIR_PWM, 4, 3);
 #endif
 
-// Функция для плавного изменения скорости
-// targetSpeed: целевая скорость (-100 до 100)
-// rampTime: время разгона/торможения в миллисекундах
+// Жылдамдықты тегіс өзгерту функциясы
+// targetSpeed: мақсатты жылдамдық (-100-ден 100-ге дейін)
+// rampTime: үдеу/тежеу уақыты миллисекундпен
 void smoothSetSpeed(int targetSpeed, unsigned long rampTime) {
   int currentSpeed = motor.getSpeed();
   int speedDiff = targetSpeed - currentSpeed;
   int steps = abs(speedDiff);
 
-  if (steps == 0) return;  // Уже на целевой скорости
+  if (steps == 0) return;  // Мақсатты жылдамдықта тұр
 
   unsigned long stepDelay = rampTime / steps;
 
-  Serial.print(F("Плавное изменение: "));
+  Serial.print(F("Тегіс өзгерту: "));
   Serial.print(currentSpeed);
   Serial.print(F(" → "));
   Serial.print(targetSpeed);
-  Serial.print(F(" за "));
+  Serial.print(F(" "));
   Serial.print(rampTime);
-  Serial.println(F(" мс"));
+  Serial.println(F(" мс-та"));
 
   if (speedDiff > 0) {
-    // Увеличиваем скорость
+    // Жылдамдықты арттырамыз
     for (int speed = currentSpeed + 1; speed <= targetSpeed; speed++) {
       motor.setSpeed(speed);
       delay(stepDelay);
     }
   } else {
-    // Уменьшаем скорость
+    // Жылдамдықты азайтамыз
     for (int speed = currentSpeed - 1; speed >= targetSpeed; speed--) {
       motor.setSpeed(speed);
       delay(stepDelay);
     }
   }
 
-  Serial.println(F("  ✓ Достигнута целевая скорость\n"));
+  Serial.println(F("  ✓ Мақсатты жылдамдыққа жетті\n"));
 }
 
-// Функция для плавного изменения скорости с заданным ускорением
-// targetSpeed: целевая скорость (-100 до 100)
-// acceleration: ускорение (единиц скорости за шаг)
-// stepDelay: задержка между шагами в миллисекундах
+// Белгіленген үдеумен жылдамдықты тегіс өзгерту функциясы
+// targetSpeed: мақсатты жылдамдық (-100-ден 100-ге дейін)
+// acceleration: үдеу (жылдамдық бірліктері әр қадамда)
+// stepDelay: қадамдар арасындағы кідіріс миллисекундпен
 void smoothSetSpeedAccel(int targetSpeed, int acceleration, unsigned long stepDelay) {
   int currentSpeed = motor.getSpeed();
 
-  Serial.print(F("Плавное изменение с ускорением "));
+  Serial.print(F("Үдеумен тегіс өзгерту "));
   Serial.print(acceleration);
   Serial.print(F(": "));
   Serial.print(currentSpeed);
@@ -81,13 +80,13 @@ void smoothSetSpeedAccel(int targetSpeed, int acceleration, unsigned long stepDe
     int diff = targetSpeed - currentSpeed;
 
     if (abs(diff) <= acceleration) {
-      // Достигаем целевой скорости
+      // Мақсатты жылдамдыққа жетеміз
       currentSpeed = targetSpeed;
     } else if (diff > 0) {
-      // Увеличиваем скорость
+      // Жылдамдықты арттырамыз
       currentSpeed += acceleration;
     } else {
-      // Уменьшаем скорость
+      // Жылдамдықты азайтамыз
       currentSpeed -= acceleration;
     }
 
@@ -95,7 +94,7 @@ void smoothSetSpeedAccel(int targetSpeed, int acceleration, unsigned long stepDe
     delay(stepDelay);
   }
 
-  Serial.println(F("  ✓ Достигнута целевая скорость\n"));
+  Serial.println(F("  ✓ Мақсатты жылдамдыққа жетілді\n"));
 }
 
 void setup() {
@@ -103,170 +102,170 @@ void setup() {
   delay(1000);
 
   Serial.println(F("╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║  ПЛАВНОЕ ИЗМЕНЕНИЕ СКОРОСТИ (RAMPING)         ║"));
+  Serial.println(F("║  ЖЫЛДАМДЫҚТЫҢ ТЕГІС ӨЗГЕРУІ (RAMPING)         ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
   delay(2000);
 }
 
 void loop() {
-  // ========== СРАВНЕНИЕ: Резкое VS Плавное ==========
+  // ========== САЛЫСТЫРУ: Кенеттік VS Тегіс ==========
   Serial.println(F("═══════════════════════════════════════════════"));
-  Serial.println(F("СРАВНЕНИЕ: Резкое vs Плавное изменение"));
+  Serial.println(F("САЛЫСТЫРУ: Кенеттік vs Тегіс өзгеру"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("❌ РЕЗКОЕ изменение (может повредить механику):"));
+  Serial.println(F("❌ КЕНЕТТІК өзгеру (механиканы зақымдауы мүмкін):"));
   motor.setSpeed(0);
   delay(500);
-  Serial.println(F("motor.setSpeed(100) - мгновенный рывок!"));
+  Serial.println(F("motor.setSpeed(100) - лезде секіріс!"));
   motor.setSpeed(100);
   delay(2000);
 
   motor.stop();
   delay(1000);
 
-  Serial.println(F("\n✓ ПЛАВНОЕ изменение (безопасно для механики):"));
+  Serial.println(F("\n✓ ТЕГІС өзгеру (механикаға қауіпсіз):"));
   motor.setSpeed(0);
   delay(500);
-  smoothSetSpeed(100, 2000);  // Плавный разгон за 2 секунды
+  smoothSetSpeed(100, 2000);  // 2 секундта тегіс жеделдету
   delay(2000);
 
   motor.stop();
   delay(2000);
 
-  // ========== РАЗНЫЕ ВРЕМЕНА РАЗГОНА ==========
+  // ========== ӘРТҮРЛІ ЖЕДЕЛДЕТУ УАҚЫТТАРЫ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("РАЗНЫЕ ВРЕМЕНА РАЗГОНА"));
+  Serial.println(F("ӘРТҮРЛІ ЖЕДЕЛДЕТУ УАҚЫТТАРЫ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Быстрый разгон (1 секунда):"));
+  Serial.println(F("→ Жылдам жеделдету (1 секунд):"));
   smoothSetSpeed(80, 1000);
   delay(1000);
   smoothSetSpeed(0, 1000);
   delay(1000);
 
-  Serial.println(F("→ Средний разгон (2 секунды):"));
+  Serial.println(F("→ Орташа жеделдету (2 секунд):"));
   smoothSetSpeed(80, 2000);
   delay(1000);
   smoothSetSpeed(0, 2000);
   delay(1000);
 
-  Serial.println(F("→ Медленный разгон (3 секунды):"));
+  Serial.println(F("→ Баяу жеделдету (3 секунд):"));
   smoothSetSpeed(80, 3000);
   delay(1000);
   smoothSetSpeed(0, 3000);
   delay(2000);
 
-  // ========== УСКОРЕНИЕ ==========
+  // ========== ҮДЕУ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("УПРАВЛЕНИЕ УСКОРЕНИЕМ"));
+  Serial.println(F("ҮДЕУДІ БАСҚАРУ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Малое ускорение (плавно):"));
-  smoothSetSpeedAccel(90, 2, 50);  // +2 единицы каждые 50мс
+  Serial.println(F("→ Кіші үдеу (тегіс):"));
+  smoothSetSpeedAccel(90, 2, 50);  // +2 бірлік әр 50мс
   delay(1000);
   smoothSetSpeedAccel(0, 2, 50);
   delay(1000);
 
-  Serial.println(F("→ Среднее ускорение:"));
-  smoothSetSpeedAccel(90, 5, 50);  // +5 единиц каждые 50мс
+  Serial.println(F("→ Орташа үдеу:"));
+  smoothSetSpeedAccel(90, 5, 50);  // +5 бірлік әр 50мс
   delay(1000);
   smoothSetSpeedAccel(0, 5, 50);
   delay(1000);
 
-  Serial.println(F("→ Большое ускорение (быстро):"));
-  smoothSetSpeedAccel(90, 10, 50);  // +10 единиц каждые 50мс
+  Serial.println(F("→ Үлкен үдеу (жылдам):"));
+  smoothSetSpeedAccel(90, 10, 50);  // +10 бірлік әр 50мс
   delay(1000);
   smoothSetSpeedAccel(0, 10, 50);
   delay(2000);
 
   // ========== РЕВЕРС ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ПЛАВНЫЙ РЕВЕРС"));
+  Serial.println(F("ТЕГІС РЕВЕРС"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Разгон вперед:"));
+  Serial.println(F("→ Алға жеделдету:"));
   smoothSetSpeed(70, 2000);
   delay(1000);
 
-  Serial.println(F("→ Плавная остановка:"));
+  Serial.println(F("→ Тегіс тоқтау:"));
   smoothSetSpeed(0, 1500);
   delay(500);
 
-  Serial.println(F("→ Разгон назад:"));
+  Serial.println(F("→ Артқа жеделдету:"));
   smoothSetSpeed(-70, 2000);
   delay(1000);
 
-  Serial.println(F("→ Плавная остановка:"));
+  Serial.println(F("→ Тегіс тоқтау:"));
   smoothSetSpeed(0, 1500);
   delay(2000);
 
-  // ========== ПРЯМОЙ РЕВЕРС ==========
+  // ========== ТІКЕЛЕЙ РЕВЕРС ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ПРЯМОЙ РЕВЕРС (через ноль)"));
+  Serial.println(F("ТІКЕЛЕЙ РЕВЕРС (нөл арқылы)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Вперед 60%:"));
+  Serial.println(F("→ Алға 60%:"));
   smoothSetSpeed(60, 1500);
   delay(1000);
 
-  Serial.println(F("→ Прямой переход на -60% (через 0):"));
-  smoothSetSpeed(-60, 3000);  // Плавно проходим через 0
+  Serial.println(F("→ -60%-ға тікелей өту (0 арқылы):"));
+  smoothSetSpeed(-60, 3000);  // 0 арқылы тегіс өтеміз
   delay(1000);
 
-  Serial.println(F("→ Остановка:"));
+  Serial.println(F("→ Тоқтату:"));
   smoothSetSpeed(0, 1500);
   delay(2000);
 
-  // ========== S-ОБРАЗНАЯ КРИВАЯ ==========
+  // ========== S-ҚИСЫҚ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("S-ОБРАЗНАЯ КРИВАЯ (продвинутая техника)"));
+  Serial.println(F("S-ҚИСЫҚ (жетілдірілген техника)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Медленный старт → быстрое ускорение → плавная остановка\n"));
+  Serial.println(F("Баяу бастау → жылдам үдеу → тегіс тоқтау\n"));
 
-  // Медленный старт
-  Serial.println(F("  Фаза 1: Медленный старт"));
+  // Баяу бастау
+  Serial.println(F("  Фаза 1: Баяу бастау"));
   smoothSetSpeedAccel(30, 1, 100);
   delay(500);
 
-  // Быстрое ускорение
-  Serial.println(F("  Фаза 2: Быстрое ускорение"));
+  // Жылдам үдеу
+  Serial.println(F("  Фаза 2: Жылдам үдеу"));
   smoothSetSpeedAccel(90, 5, 50);
   delay(1000);
 
-  // Плавное замедление
-  Serial.println(F("  Фаза 3: Плавное замедление"));
+  // Тегіс баяулау
+  Serial.println(F("  Фаза 3: Тегіс баяулау"));
   smoothSetSpeedAccel(30, 3, 70);
   delay(500);
 
-  // Мягкая остановка
-  Serial.println(F("  Фаза 4: Мягкая остановка"));
+  // Жұмсақ тоқтау
+  Serial.println(F("  Фаза 4: Жұмсақ тоқтау"));
   smoothSetSpeedAccel(0, 1, 100);
   delay(2000);
 
-  // ========== РЕКОМЕНДАЦИИ ==========
+  // ========== ҰСЫНЫСТАР ==========
   Serial.println(F("\n╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║        РЕКОМЕНДАЦИИ ПО ИСПОЛЬЗОВАНИЮ          ║"));
+  Serial.println(F("║        ПАЙДАЛАНУ БОЙЫНША ҰСЫНЫСТАР            ║"));
   Serial.println(F("╠═══════════════════════════════════════════════╣"));
-  Serial.println(F("║  ВСЕГДА используйте плавное изменение для:    ║"));
-  Serial.println(F("║    ✓ Старта с места (0 → скорость)            ║"));
-  Serial.println(F("║    ✓ Остановки (скорость → 0)                 ║"));
-  Serial.println(F("║    ✓ Реверса (+ → -)                          ║"));
-  Serial.println(F("║    ✓ Высоких скоростей                        ║"));
+  Serial.println(F("║  ӘРҚАШАН тегіс өзгеруді қолданыңыз:           ║"));
+  Serial.println(F("║    ✓ Орнынан бастау (0 → жылдамдық)           ║"));
+  Serial.println(F("║    ✓ Тоқтату (жылдамдық → 0)                  ║"));
+  Serial.println(F("║    ✓ Реверс (+ → -)                           ║"));
+  Serial.println(F("║    ✓ Жоғары жылдамдықтар                      ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Рекомендуемые времена разгона:               ║"));
-  Serial.println(F("║    • Легкие роботы: 1-2 секунды               ║"));
-  Serial.println(F("║    • Средние роботы: 2-3 секунды              ║"));
-  Serial.println(F("║    • Тяжелые роботы: 3-5 секунд               ║"));
+  Serial.println(F("║  Ұсынылатын жеделдету уақыттары:              ║"));
+  Serial.println(F("║    • Жеңіл роботтар: 1-2 секунд               ║"));
+  Serial.println(F("║    • Орташа роботтар: 2-3 секунд              ║"));
+  Serial.println(F("║    • Ауыр роботтар: 3-5 секунд                ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Преимущества:                                ║"));
-  Serial.println(F("║    • Защита механики от износа                ║"));
-  Serial.println(F("║    • Снижение пикового тока                   ║"));
-  Serial.println(F("║    • Лучшее сцепление колес                   ║"));
-  Serial.println(F("║    • Плавное движение                         ║"));
+  Serial.println(F("║  Артықшылықтары:                              ║"));
+  Serial.println(F("║    • Механиканы тозудан қорғау                ║"));
+  Serial.println(F("║    • Шың токты төмендету                      ║"));
+  Serial.println(F("║    • Дөңгелектердің жақсы ілінуі             ║"));
+  Serial.println(F("║    • Тегіс қозғалыс                           ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
-  Serial.println(F("Цикл завершен. Повтор через 5 секунд...\n\n"));
+  Serial.println(F("Цикл аяқталды. 5 секундтан кейін қайталау...\n\n"));
   delay(5000);
 }

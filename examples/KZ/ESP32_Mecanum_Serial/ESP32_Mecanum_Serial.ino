@@ -1,40 +1,39 @@
 // Language: Қазақ | English: ../EN/ESP32_Mecanum_Serial/ | Русский: ../RU/ESP32_Mecanum_Serial/
-// TODO: Translate comments and strings to Kazakh
 /*
- * Интерактивное управление роботом с меканум колесами через Serial Monitor
+ * Serial Monitor арқылы меканум дөңгелектері бар роботты интерактивті басқару
  *
- * Подключение моторов (режим PWM_PWM):
- * Motor 1 (Передний левый):  IN1 -> GPIO 32, IN2 -> GPIO 33
- * Motor 2 (Передний правый): IN1 -> GPIO 25, IN2 -> GPIO 26
- * Motor 3 (Задний левый):    IN1 -> GPIO 19, IN2 -> GPIO 18
- * Motor 4 (Задний правый):    IN1 -> GPIO 17, IN2 -> GPIO 16
+ * Қозғалтқыштарды қосу (режим PWM_PWM):
+ * Motor 1 (Алдыңғы сол):  IN1 -> GPIO 32, IN2 -> GPIO 33
+ * Motor 2 (Алдыңғы оң): IN1 -> GPIO 25, IN2 -> GPIO 26
+ * Motor 3 (Артқы сол):    IN1 -> GPIO 19, IN2 -> GPIO 18
+ * Motor 4 (Артқы оң):    IN1 -> GPIO 17, IN2 -> GPIO 16
  *
- * Команды управления через Serial Monitor:
- * w - вперед        q - диагональ вперед-влево    e - диагональ вперед-вправо
- * s - назад         z - диагональ назад-влево     c - диагональ назад-вправо
- * a - влево
- * d - вправо
- * j - поворот против часовой    l - поворот по часовой
- * x - стоп (свободная остановка)
- * b - тормоз (активное торможение)
- * + - увеличить скорость
- * - - уменьшить скорость
- * h - помощь (список команд)
+ * Serial Monitor арқылы басқару командалары:
+ * w - алға        q - диагональ алға-солға    e - диагональ алға-оңға
+ * s - артқа       z - диагональ артқа-солға   c - диагональ артқа-оңға
+ * a - солға
+ * d - оңға
+ * j - сағат тіліне қарсы айналу    l - сағат тілі бойынша айналу
+ * x - тоқтату (еркін тоқтату)
+ * b - тежеу (белсенді тежеу)
+ * + - жылдамдықты арттыру
+ * - - жылдамдықты азайту
+ * h - анықтама (командалар тізімі)
  *
- * Код написан для Alash engineering
+ * Код Alash engineering үшін жазылған
  */
 
 #include "AlashMotorControlLite.h"
 
-// Создаем объекты для 4 моторов
+// 4 қозғалтқыш үшін объектілер жасаймыз
 AlashMotorControlLite motorFL(PWM_PWM, 32, 33);  // Front Left
 AlashMotorControlLite motorFR(PWM_PWM, 25, 26);  // Front Right
 AlashMotorControlLite motorRL(PWM_PWM, 19, 18);  // Rear Left
 AlashMotorControlLite motorRR(PWM_PWM, 17, 16);  // Rear Right
 
-int speed = 60;  // Текущая скорость (0-100)
+int speed = 60;  // Ағымдағы жылдамдық (0-100)
 
-// Функция для управления меканум-колесами
+// Меканум дөңгелектерді басқару функциясы
 void mecanumDrive(int vx, int vy, int rotation) {
   int speedFL = vx + vy + rotation;
   int speedFR = vx - vy - rotation;
@@ -68,30 +67,30 @@ void brakeAll() {
 
 void printHelp() {
   Serial.println(F("\n╔══════════════════════════════════════════════════╗"));
-  Serial.println(F("║   УПРАВЛЕНИЕ МЕКАНУМ РОБОТОМ - КОМАНДЫ          ║"));
+  Serial.println(F("║   МЕКАНУМ РОБОТТЫ БАСҚАРУ - КОМАНДАЛАР           ║"));
   Serial.println(F("╠══════════════════════════════════════════════════╣"));
-  Serial.println(F("║  БАЗОВЫЕ ДВИЖЕНИЯ:                              ║"));
-  Serial.println(F("║    w - Вперед          s - Назад                ║"));
-  Serial.println(F("║    a - Влево           d - Вправо               ║"));
+  Serial.println(F("║  НЕГІЗГІ ҚОЗҒАЛЫСТАР:                            ║"));
+  Serial.println(F("║    w - Алға            s - Артқа                ║"));
+  Serial.println(F("║    a - Солға           d - Оңға                 ║"));
   Serial.println(F("║                                                  ║"));
-  Serial.println(F("║  ДИАГОНАЛЬНЫЕ ДВИЖЕНИЯ:                         ║"));
-  Serial.println(F("║    q - Вперед-влево    e - Вперед-вправо        ║"));
-  Serial.println(F("║    z - Назад-влево     c - Назад-вправо         ║"));
+  Serial.println(F("║  ДИАГОНАЛЬДІ ҚОЗҒАЛЫСТАР:                        ║"));
+  Serial.println(F("║    q - Алға-солға      e - Алға-оңға            ║"));
+  Serial.println(F("║    z - Артқа-солға     c - Артқа-оңға           ║"));
   Serial.println(F("║                                                  ║"));
-  Serial.println(F("║  ВРАЩЕНИЕ:                                       ║"));
-  Serial.println(F("║    j - Против часовой  l - По часовой           ║"));
+  Serial.println(F("║  АЙНАЛУ:                                         ║"));
+  Serial.println(F("║    j - Сағат тіліне қарсы  l - Сағат тілімен   ║"));
   Serial.println(F("║                                                  ║"));
-  Serial.println(F("║  ОСТАНОВКА:                                      ║"));
-  Serial.println(F("║    x - Стоп (свободная)                         ║"));
-  Serial.println(F("║    b - Тормоз (активное торможение)             ║"));
+  Serial.println(F("║  ТОҚТАТУ:                                        ║"));
+  Serial.println(F("║    x - Тоқтату (еркін)                          ║"));
+  Serial.println(F("║    b - Тежеу (белсенді тежеу)                   ║"));
   Serial.println(F("║                                                  ║"));
-  Serial.println(F("║  УПРАВЛЕНИЕ СКОРОСТЬЮ:                          ║"));
-  Serial.println(F("║    + - Увеличить скорость                       ║"));
-  Serial.println(F("║    - - Уменьшить скорость                       ║"));
+  Serial.println(F("║  ЖЫЛДАМДЫҚТЫ БАСҚАРУ:                            ║"));
+  Serial.println(F("║    + - Жылдамдықты арттыру                      ║"));
+  Serial.println(F("║    - - Жылдамдықты азайту                       ║"));
   Serial.println(F("║                                                  ║"));
-  Serial.println(F("║    h - Показать эту помощь                      ║"));
+  Serial.println(F("║    h - Осы анықтаманы көрсету                   ║"));
   Serial.println(F("╚══════════════════════════════════════════════════╝"));
-  Serial.print(F("\nТекущая скорость: "));
+  Serial.print(F("\nАғымдағы жылдамдық: "));
   Serial.print(speed);
   Serial.println(F("%\n"));
 }
@@ -107,7 +106,7 @@ void setup() {
 
   printHelp();
 
-  Serial.println(F("Готов к работе! Введите команду..."));
+  Serial.println(F("Жұмысқа дайын! Команда енгізіңіз..."));
 }
 
 void loop() {
@@ -115,119 +114,119 @@ void loop() {
     char command = Serial.read();
 
     switch(command) {
-      // Базовые движения
+      // Негізгі қозғалыстар
       case 'w': case 'W':
-        Serial.print(F("▲ Вперед ["));
+        Serial.print(F("▲ Алға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(speed, 0, 0);
         break;
 
       case 's': case 'S':
-        Serial.print(F("▼ Назад ["));
+        Serial.print(F("▼ Артқа ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(-speed, 0, 0);
         break;
 
       case 'a': case 'A':
-        Serial.print(F("◄ Влево ["));
+        Serial.print(F("◄ Солға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(0, speed, 0);
         break;
 
       case 'd': case 'D':
-        Serial.print(F("► Вправо ["));
+        Serial.print(F("► Оңға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(0, -speed, 0);
         break;
 
-      // Диагональные движения
+      // Диагональді қозғалыстар
       case 'q': case 'Q':
-        Serial.print(F("↖ Вперед-влево ["));
+        Serial.print(F("↖ Алға-солға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(speed, speed, 0);
         break;
 
       case 'e': case 'E':
-        Serial.print(F("↗ Вперед-вправо ["));
+        Serial.print(F("↗ Алға-оңға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(speed, -speed, 0);
         break;
 
       case 'z': case 'Z':
-        Serial.print(F("↙ Назад-влево ["));
+        Serial.print(F("↙ Артқа-солға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(-speed, speed, 0);
         break;
 
       case 'c': case 'C':
-        Serial.print(F("↘ Назад-вправо ["));
+        Serial.print(F("↘ Артқа-оңға ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(-speed, -speed, 0);
         break;
 
-      // Вращение
+      // Айналу
       case 'j': case 'J':
-        Serial.print(F("↺ Поворот против часовой ["));
+        Serial.print(F("↺ Сағат тіліне қарсы айналу ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(0, 0, -speed);
         break;
 
       case 'l': case 'L':
-        Serial.print(F("↻ Поворот по часовой ["));
+        Serial.print(F("↻ Сағат тілі бойынша айналу ["));
         Serial.print(speed);
         Serial.println(F("%]"));
         mecanumDrive(0, 0, speed);
         break;
 
-      // Остановка
+      // Тоқтату
       case 'x': case 'X':
-        Serial.println(F("■ Стоп"));
+        Serial.println(F("■ Тоқтату"));
         stopAll();
         break;
 
       case 'b': case 'B':
-        Serial.println(F("⊠ Тормоз"));
+        Serial.println(F("⊠ Тежеу"));
         brakeAll();
         break;
 
-      // Управление скоростью
+      // Жылдамдықты басқару
       case '+':
         speed = constrain(speed + 10, 0, 100);
-        Serial.print(F("Скорость увеличена: "));
+        Serial.print(F("Жылдамдық арттырылды: "));
         Serial.print(speed);
         Serial.println(F("%"));
         break;
 
       case '-':
         speed = constrain(speed - 10, 0, 100);
-        Serial.print(F("Скорость уменьшена: "));
+        Serial.print(F("Жылдамдық азайтылды: "));
         Serial.print(speed);
         Serial.println(F("%"));
         break;
 
-      // Помощь
+      // Анықтама
       case 'h': case 'H':
         printHelp();
         break;
 
       case '\n':
       case '\r':
-        // Игнорируем символы новой строки
+        // Жаңа жол таңбаларын елемейміз
         break;
 
       default:
-        Serial.print(F("Неизвестная команда: "));
+        Serial.print(F("Белгісіз команда: "));
         Serial.println(command);
-        Serial.println(F("Нажмите 'h' для помощи"));
+        Serial.println(F("Анықтама үшін 'h' басыңыз"));
         break;
     }
   }

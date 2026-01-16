@@ -1,26 +1,25 @@
 // Language: Қазақ | English: ../EN/SpeedLimits/ | Русский: ../RU/SpeedLimits/
-// TODO: Translate comments and strings to Kazakh
 /*
- * Пример демонстрирует автоматическое ограничение скорости
+ * Мысал жылдамдықты автоматты шектеуді көрсетеді
  *
- * Библиотека автоматически ограничивает значения скорости в диапазоне -100 до 100:
- * - Значения > 100 автоматически устанавливаются как 100
- * - Значения < -100 автоматически устанавливаются как -100
- * - Это защищает от ошибок программирования
+ * Кітапхана жылдамдық мәндерін -100-ден 100-ге дейінгі аралықта автоматты шектейді:
+ * - > 100 мәндер автоматты түрде 100 ретінде орнатылады
+ * - < -100 мәндер автоматты түрде -100 ретінде орнатылады
+ * - Бұл программалау қателіктерінен қорғайды
  *
- * Этот пример показывает, как работает защита и как правильно
- * использовать диапазон скоростей.
+ * Бұл мысал қорғаудың қалай жұмыс істейтінін және жылдамдық
+ * аралығын қалай дұрыс пайдалану керектігін көрсетеді.
  *
- * Подключение:
- * Arduino: Motor DIR -> Pin 4, PWM -> Pin 3 (режим DIR_PWM)
- * ESP32:   Motor IN1 -> GPIO 32, IN2 -> GPIO 33 (режим PWM_PWM)
+ * Қосылу:
+ * Arduino: Motor DIR -> Pin 4, PWM -> Pin 3 (DIR_PWM режимі)
+ * ESP32:   Motor IN1 -> GPIO 32, IN2 -> GPIO 33 (PWM_PWM режимі)
  *
- * Код написан для Alash engineering
+ * Код Alash engineering үшін жазылды
  */
 
 #include "AlashMotorControlLite.h"
 
-// Выберите режим для вашей платформы:
+// Платформаңыз үшін режимді таңдаңыз:
 #if defined(ARDUINO_ARCH_ESP32)
   AlashMotorControlLite motor(PWM_PWM, 32, 33);
 #else
@@ -31,15 +30,15 @@ void testSpeed(int requestedSpeed) {
   motor.setSpeed(requestedSpeed);
   int actualSpeed = motor.getSpeed();
 
-  Serial.print(F("Запрошено: "));
+  Serial.print(F("Сұралды: "));
   if (requestedSpeed >= 0) Serial.print(F(" "));
   Serial.print(requestedSpeed);
-  Serial.print(F("  →  Установлено: "));
+  Serial.print(F("  →  Орнатылды: "));
   if (actualSpeed >= 0) Serial.print(F(" "));
   Serial.print(actualSpeed);
 
   if (requestedSpeed != actualSpeed) {
-    Serial.print(F("  ⚠ ОГРАНИЧЕНО!"));
+    Serial.print(F("  ⚠ ШЕКТЕЛДІ!"));
   } else {
     Serial.print(F("  ✓"));
   }
@@ -53,26 +52,26 @@ void setup() {
   delay(1000);
 
   Serial.println(F("╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║  АВТОМАТИЧЕСКОЕ ОГРАНИЧЕНИЕ СКОРОСТИ          ║"));
+  Serial.println(F("║  ЖЫЛДАМДЫҚТЫ АВТОМАТТЫ ШЕКТЕУ                 ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
   delay(2000);
 }
 
 void loop() {
-  // ========== ТЕСТИРОВАНИЕ ДОПУСТИМЫХ ЗНАЧЕНИЙ ==========
+  // ========== РҰҚСАТ ЕТІЛГЕН МӘНДЕРДІ ТЕСТІЛЕУ ==========
   Serial.println(F("═══════════════════════════════════════════════"));
-  Serial.println(F("ДОПУСТИМЫЕ ЗНАЧЕНИЯ (от -100 до 100)"));
+  Serial.println(F("РҰҚСАТ ЕТІЛГЕН МӘНДЕР (-100-ден 100-ге дейін)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Тестирование положительных скоростей:"));
+  Serial.println(F("Оң жылдамдықтарды тестілеу:"));
   testSpeed(0);
   testSpeed(25);
   testSpeed(50);
   testSpeed(75);
   testSpeed(100);
 
-  Serial.println(F("\nТестирование отрицательных скоростей:"));
+  Serial.println(F("\nТеріс жылдамдықтарды тестілеу:"));
   testSpeed(0);
   testSpeed(-25);
   testSpeed(-50);
@@ -82,51 +81,51 @@ void loop() {
   motor.stop();
   delay(2000);
 
-  // ========== ТЕСТИРОВАНИЕ ВЫХОДА ЗА ПРЕДЕЛЫ ==========
+  // ========== ШЕКТЕН АСУДЫ ТЕСТІЛЕУ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ВЫХОД ЗА ВЕРХНИЙ ПРЕДЕЛ (+100)"));
+  Serial.println(F("ЖОҒАРЫ ШЕКТЕН АСУЫ (+100)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Библиотека автоматически ограничит значения:\n"));
+  Serial.println(F("Кітапхана мәндерді автоматты түрде шектейді:\n"));
 
   testSpeed(100);   // Норма
-  testSpeed(101);   // Будет ограничено до 100
-  testSpeed(120);   // Будет ограничено до 100
-  testSpeed(150);   // Будет ограничено до 100
-  testSpeed(200);   // Будет ограничено до 100
-  testSpeed(255);   // Будет ограничено до 100
-  testSpeed(500);   // Будет ограничено до 100
-  testSpeed(1000);  // Будет ограничено до 100
-  testSpeed(32767); // Будет ограничено до 100
+  testSpeed(101);   // 100-ге дейін шектеледі
+  testSpeed(120);   // 100-ге дейін шектеледі
+  testSpeed(150);   // 100-ге дейін шектеледі
+  testSpeed(200);   // 100-ге дейін шектеледі
+  testSpeed(255);   // 100-ге дейін шектеледі
+  testSpeed(500);   // 100-ге дейін шектеледі
+  testSpeed(1000);  // 100-ге дейін шектеледі
+  testSpeed(32767); // 100-ге дейін шектеледі
 
   motor.stop();
   delay(2000);
 
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ВЫХОД ЗА НИЖНИЙ ПРЕДЕЛ (-100)"));
+  Serial.println(F("ТӨМЕНГІ ШЕКТЕН АСУЫ (-100)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Библиотека автоматически ограничит значения:\n"));
+  Serial.println(F("Кітапхана мәндерді автоматты түрде шектейді:\n"));
 
   testSpeed(-100);   // Норма
-  testSpeed(-101);   // Будет ограничено до -100
-  testSpeed(-120);   // Будет ограничено до -100
-  testSpeed(-150);   // Будет ограничено до -100
-  testSpeed(-200);   // Будет ограничено до -100
-  testSpeed(-255);   // Будет ограничено до -100
-  testSpeed(-500);   // Будет ограничено до -100
-  testSpeed(-1000);  // Будет ограничено до -100
-  testSpeed(-32768); // Будет ограничено до -100
+  testSpeed(-101);   // -100-ге дейін шектеледі
+  testSpeed(-120);   // -100-ге дейін шектеледі
+  testSpeed(-150);   // -100-ге дейін шектеледі
+  testSpeed(-200);   // -100-ге дейін шектеледі
+  testSpeed(-255);   // -100-ге дейін шектеледі
+  testSpeed(-500);   // -100-ге дейін шектеледі
+  testSpeed(-1000);  // -100-ге дейін шектеледі
+  testSpeed(-32768); // -100-ге дейін шектеледі
 
   motor.stop();
   delay(2000);
 
-  // ========== ПРАКТИЧЕСКИЕ ПРИМЕРЫ ==========
+  // ========== ПРАКТИКАЛЫҚ МЫСАЛДАР ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ПРАКТИЧЕСКИЕ ПРИМЕРЫ"));
+  Serial.println(F("ПРАКТИКАЛЫҚ МЫСАЛДАР"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Пример 1: Безопасное суммирование скоростей\n"));
+  Serial.println(F("Мысал 1: Жылдамдықтарды қауіпсіз қосу\n"));
 
   Serial.println(F("int baseSpeed = 80;"));
   Serial.println(F("int boost = 30;"));
@@ -135,110 +134,110 @@ void loop() {
   int baseSpeed = 80;
   int boost = 30;
 
-  Serial.print(F("Результат: "));
-  testSpeed(baseSpeed + boost);  // Автоматически ограничится до 100
+  Serial.print(F("Нәтиже: "));
+  testSpeed(baseSpeed + boost);  // Автоматты 100-ге дейін шектеледі
 
-  Serial.println(F("\nБиблиотека защищает от превышения!\n"));
+  Serial.println(F("\nКітапхана асып кетуден қорғайды!\n"));
   delay(2000);
 
-  Serial.println(F("Пример 2: Использование процентов\n"));
+  Serial.println(F("Мысал 2: Пайыздарды пайдалану\n"));
 
-  Serial.println(F("int userInput = 150;  // Пользователь ввел 150%"));
+  Serial.println(F("int userInput = 150;  // Пайдаланушы 150% енгізді"));
   Serial.println(F("motor.setSpeed(userInput);\n"));
 
   int userInput = 150;
-  Serial.print(F("Результат: "));
-  testSpeed(userInput);  // Автоматически ограничится до 100
+  Serial.print(F("Нәтиже: "));
+  testSpeed(userInput);  // Автоматты 100-ге дейін шектеледі
 
-  Serial.println(F("\nДаже неправильный ввод безопасен!\n"));
+  Serial.println(F("\nДұрыс емес енгізу де қауіпсіз!\n"));
   delay(2000);
 
-  Serial.println(F("Пример 3: Математические вычисления\n"));
+  Serial.println(F("Мысал 3: Математикалық есептеулер\n"));
 
   Serial.println(F("int sensorValue = analogRead(A0);  // 0-1023"));
   Serial.println(F("int speed = map(sensorValue, 0, 1023, -200, 200);"));
   Serial.println(F("motor.setSpeed(speed);\n"));
 
-  // Симулируем разные значения датчика
-  Serial.println(F("При sensorValue = 0:"));
-  testSpeed(-200);  // Ограничится до -100
+  // Датчиктің әртүрлі мәндерін имитациялаймыз
+  Serial.println(F("sensorValue = 0 кезінде:"));
+  testSpeed(-200);  // -100-ге дейін шектеледі
 
-  Serial.println(F("При sensorValue = 512:"));
-  testSpeed(0);     // Середина
+  Serial.println(F("sensorValue = 512 кезінде:"));
+  testSpeed(0);     // Ортасы
 
-  Serial.println(F("При sensorValue = 1023:"));
-  testSpeed(200);   // Ограничится до 100
+  Serial.println(F("sensorValue = 1023 кезінде:"));
+  testSpeed(200);   // 100-ге дейін шектеледі
 
-  Serial.println(F("\nДаже при неправильном map() защита работает!\n"));
+  Serial.println(F("\nДұрыс емес map() кезінде де қорғау жұмыс істейді!\n"));
 
   motor.stop();
   delay(2000);
 
-  // ========== ГРАНИЧНЫЕ ЗНАЧЕНИЯ ==========
+  // ========== ШЕКАРАЛЫҚ МӘНДЕР ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ГРАНИЧНЫЕ ЗНАЧЕНИЯ"));
+  Serial.println(F("ШЕКАРАЛЫҚ МӘНДЕР"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Точные границы диапазона:\n"));
+  Serial.println(F("Аралықтың нақты шекаралары:\n"));
 
-  testSpeed(99);    // Последнее допустимое перед максимумом
+  testSpeed(99);    // Максимумға дейін соңғы рұқсат етілген
   testSpeed(100);   // Максимум
-  testSpeed(101);   // Первое ограничиваемое
+  testSpeed(101);   // Бірінші шектелетін
 
   Serial.println();
 
-  testSpeed(-99);   // Последнее допустимое перед минимумом
+  testSpeed(-99);   // Минимумға дейін соңғы рұқсат етілген
   testSpeed(-100);  // Минимум
-  testSpeed(-101);  // Первое ограничиваемое
+  testSpeed(-101);  // Бірінші шектелетін
 
   motor.stop();
   delay(2000);
 
-  // ========== РЕКОМЕНДАЦИИ ==========
+  // ========== ҰСЫНЫСТАР ==========
   Serial.println(F("\n╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║        РЕКОМЕНДАЦИИ ПО ИСПОЛЬЗОВАНИЮ          ║"));
+  Serial.println(F("║        ПАЙДАЛАНУ БОЙЫНША ҰСЫНЫСТАР            ║"));
   Serial.println(F("╠═══════════════════════════════════════════════╣"));
-  Serial.println(F("║  Диапазон скорости: -100 до 100               ║"));
+  Serial.println(F("║  Жылдамдық аралығы: -100-ден 100-ге дейін     ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Значения:                                     ║"));
-  Serial.println(F("║    -100 = Полная скорость назад               ║"));
-  Serial.println(F("║      -50 = 50% назад                          ║"));
-  Serial.println(F("║        0 = Остановка                          ║"));
-  Serial.println(F("║      +50 = 50% вперед                         ║"));
-  Serial.println(F("║     +100 = Полная скорость вперед             ║"));
+  Serial.println(F("║  Мәндер:                                       ║"));
+  Serial.println(F("║    -100 = Артқа толық жылдамдық               ║"));
+  Serial.println(F("║      -50 = 50% артқа                          ║"));
+  Serial.println(F("║        0 = Тоқтау                             ║"));
+  Serial.println(F("║      +50 = 50% алға                           ║"));
+  Serial.println(F("║     +100 = Алға толық жылдамдық               ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Защита работает автоматически:               ║"));
-  Serial.println(F("║    • Значения > 100 → устанавливается 100     ║"));
-  Serial.println(F("║    • Значения < -100 → устанавливается -100   ║"));
+  Serial.println(F("║  Қорғау автоматты жұмыс істейді:              ║"));
+  Serial.println(F("║    • > 100 мәндер → 100 орнатылады            ║"));
+  Serial.println(F("║    • < -100 мәндер → -100 орнатылады          ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Хорошая практика:                            ║"));
-  Serial.println(F("║    ✓ Используйте constrain() перед setSpeed() ║"));
-  Serial.println(F("║    ✓ Проверяйте map() для корректности       ║"));
-  Serial.println(F("║    ✓ Валидируйте пользовательский ввод       ║"));
+  Serial.println(F("║  Жақсы практика:                              ║"));
+  Serial.println(F("║    ✓ setSpeed() алдында constrain() қолданыңыз ║"));
+  Serial.println(F("║    ✓ map() дұрыстығын тексеріңіз             ║"));
+  Serial.println(F("║    ✓ Пайдаланушы енгізуін тексеріңіз         ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  Но даже если забудете - защита сработает!   ║"));
+  Serial.println(F("║  Бірақ ұмытсаңыз да - қорғау іске қосылады!   ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
-  // ========== КОД-ПРИМЕР ==========
+  // ========== КОД МЫСАЛЫ ==========
   Serial.println(F("╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║              ПРИМЕРЫ КОДА                     ║"));
+  Serial.println(F("║              КОД МЫСАЛДАРЫ                    ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
-  Serial.println(F("// Правильно: с проверкой"));
+  Serial.println(F("// Дұрыс: тексерумен"));
   Serial.println(F("int speed = analogRead(A0);"));
   Serial.println(F("speed = map(speed, 0, 1023, -100, 100);"));
   Serial.println(F("motor.setSpeed(speed);\n"));
 
-  Serial.println(F("// Тоже работает: библиотека защитит"));
+  Serial.println(F("// Бұл да жұмыс істейді: кітапхана қорғайды"));
   Serial.println(F("int speed = analogRead(A0);"));
   Serial.println(F("speed = map(speed, 0, 1023, -200, 200);"));
-  Serial.println(F("motor.setSpeed(speed);  // Ограничится автоматически\n"));
+  Serial.println(F("motor.setSpeed(speed);  // Автоматты шектеледі\n"));
 
-  Serial.println(F("// С дополнительной защитой:"));
+  Serial.println(F("// Қосымша қорғаумен:"));
   Serial.println(F("int speed = getUserInput();"));
   Serial.println(F("speed = constrain(speed, -100, 100);"));
-  Serial.println(F("motor.setSpeed(speed);  // Двойная защита\n"));
+  Serial.println(F("motor.setSpeed(speed);  // Қос қорғау\n"));
 
-  Serial.println(F("Цикл завершен. Повтор через 5 секунд...\n\n"));
+  Serial.println(F("Цикл аяқталды. 5 секундтан кейін қайталау...\n\n"));
   delay(5000);
 }

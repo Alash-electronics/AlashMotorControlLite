@@ -1,35 +1,33 @@
 /*
  * Language: Қазақ | English: ../EN/DIR_DIR_PWM_DualMotor/ | Русский: ../RU/DIR_DIR_PWM_DualMotor/
  *
- * TODO: Translate comments to Kazakh
- *
- * Этот код демонстрирует управление двумя моторами с использованием библиотеки AlashMotorControlLite.
- * Устанавливаются различные скорости вращения для двух моторов с задержками между ними.
- * Код написан для Alash engineering.
+ * Бұл код AlashMotorControlLite кітапханасын пайдаланып екі қозғалтқышты басқаруды көрсетеді.
+ * Екі қозғалтқыш үшін әртүрлі айналу жылдамдықтары кідірістермен орнатылады.
+ * Код Alash engineering үшін жазылған.
  */
 
 #include "AlashMotorControlLite.h"
-// Создаем объект motorLeft с режимом DIR_DIR_PWM и пинами inA = 4, inB = 5, PWM = 6
+// DIR_DIR_PWM режимі және inA = 4, inB = 5, PWM = 6 пиндерімен motorLeft объектісін жасаймыз
 AlashMotorControlLite motorLeft(DIR_DIR_PWM, 4, 5, 6);
-// Создаем объект motorRight с режимом DIR_DIR_PWM и пинами inA = 7, inB = 8, PWM = 9
+// DIR_DIR_PWM режимі және inA = 7, inB = 8, PWM = 9 пиндерімен motorRight объектісін жасаймыз
 AlashMotorControlLite motorRight(DIR_DIR_PWM, 7, 8, 9);
 void setup() {
-  // Нет инициализации в этой функции, оставлена пустой
+  // Бұл функцияда инициализация жоқ, бос қалдырылған
 }
 void loop() {
-  motorLeft.setSpeed(100); // Установить скорость вращения вперед для левого мотора
-  motorRight.setSpeed(100); // Установить скорость вращения вперед для правого мотора
-  delay(3000); // Задержка 3 секунды
+  motorLeft.setSpeed(100); // Сол қозғалтқыш үшін алға айналу жылдамдығын орнату
+  motorRight.setSpeed(100); // Оң қозғалтқыш үшін алға айналу жылдамдығын орнату
+  delay(3000); // 3 секунд кідіріс
 
-  motorLeft.setSpeed(0); // Остановить левый мотор
-  motorRight.setSpeed(0); // Остановить правый мотор
-  delay(3000); // Задержка 3 секунды
+  motorLeft.setSpeed(0); // Сол қозғалтқышты тоқтату
+  motorRight.setSpeed(0); // Оң қозғалтқышты тоқтату
+  delay(3000); // 3 секунд кідіріс
 
-  motorLeft.setSpeed(-100); // Установить скорость вращения назад для левого мотора
-  motorRight.setSpeed(-100); // Установить скорость вращения назад для правого мотора
-  delay(3000); // Задержка 3 секунды
+  motorLeft.setSpeed(-100); // Сол қозғалтқыш үшін артқа айналу жылдамдығын орнату
+  motorRight.setSpeed(-100); // Оң қозғалтқыш үшін артқа айналу жылдамдығын орнату
+  delay(3000); // 3 секунд кідіріс
 
-  motorLeft.setSpeed(0); // Остановить левый мотор
-  motorRight.setSpeed(0); // Остановить правый мотор
-  delay(3000); // Задержка 3 секунды
+  motorLeft.setSpeed(0); // Сол қозғалтқышты тоқтату
+  motorRight.setSpeed(0); // Оң қозғалтқышты тоқтату
+  delay(3000); // 3 секунд кідіріс
 }

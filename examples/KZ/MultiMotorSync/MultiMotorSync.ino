@@ -1,18 +1,17 @@
 // Language: Қазақ | English: ../EN/MultiMotorSync/ | Русский: ../RU/MultiMotorSync/
-// TODO: Translate comments and strings to Kazakh
 /*
- * Пример демонстрирует синхронизацию нескольких моторов
+ * Бұл мысал бірнеше қозғалтқышты синхрондауды көрсетеді
  *
- * При работе с несколькими моторами важно:
- * - Синхронизировать запуск и остановку
- * - Координировать скорости
- * - Создавать функции для группового управления
- * - Правильно организовать код
+ * Бірнеше қозғалтқышпен жұмыс кезінде маңызды:
+ * - Іске қосу мен тоқтатуды синхрондау
+ * - Жылдамдықты үйлестіру
+ * - Топтық басқару үшін функциялар жасау
+ * - Кодты дұрыс ұйымдастыру
  *
- * Этот пример показывает лучшие практики для управления
- * несколькими моторами одновременно.
+ * Бұл мысал бірнеше қозғалтқышты бір уақытта басқарудың
+ * ең жақсы тәжірибелерін көрсетеді.
  *
- * Подключение для 2 моторов:
+ * 2 қозғалтқыш үшін қосылым:
  * Arduino:
  *   Motor 1: DIR -> Pin 4, PWM -> Pin 3
  *   Motor 2: DIR -> Pin 7, PWM -> Pin 6
@@ -21,43 +20,43 @@
  *   Motor 1: IN1 -> GPIO 32, IN2 -> GPIO 33
  *   Motor 2: IN1 -> GPIO 25, IN2 -> GPIO 26
  *
- * Код написан для Alash engineering
+ * Код Alash engineering үшін жазылған
  */
 
 #include "AlashMotorControlLite.h"
 
-// Создаем объекты моторов
+// Қозғалтқыш объектілерін жасаймыз
 #if defined(ARDUINO_ARCH_ESP32)
-  // ESP32 - режим PWM_PWM
+  // ESP32 - PWM_PWM режимі
   AlashMotorControlLite motorLeft(PWM_PWM, 32, 33);
   AlashMotorControlLite motorRight(PWM_PWM, 25, 26);
 #else
-  // Arduino - режим DIR_PWM
+  // Arduino - DIR_PWM режимі
   AlashMotorControlLite motorLeft(DIR_PWM, 4, 3);
   AlashMotorControlLite motorRight(DIR_PWM, 7, 6);
 #endif
 
-// ========== ФУНКЦИИ ДЛЯ ГРУППОВОГО УПРАВЛЕНИЯ ==========
+// ========== ТОПТЫҚ БАСҚАРУ ФУНКЦИЯЛАРЫ ==========
 
-// Синхронная установка скорости обоих моторов
+// Екі қозғалтқышта синхронды жылдамдық орнату
 void setBothMotors(int leftSpeed, int rightSpeed) {
   motorLeft.setSpeed(leftSpeed);
   motorRight.setSpeed(rightSpeed);
 }
 
-// Остановка всех моторов
+// Барлық қозғалтқышты тоқтату
 void stopAllMotors() {
   motorLeft.stop();
   motorRight.stop();
 }
 
-// Торможение всех моторов
+// Барлық қозғалтқышты тежеу
 void brakeAllMotors() {
   motorLeft.brake();
   motorRight.brake();
 }
 
-// Плавное изменение скорости обоих моторов
+// Екі қозғалтқыштың жылдамдығын тегіс өзгерту
 void smoothBothMotors(int leftTarget, int rightTarget, unsigned long rampTime) {
   int leftCurrent = motorLeft.getSpeed();
   int rightCurrent = motorRight.getSpeed();
@@ -71,7 +70,7 @@ void smoothBothMotors(int leftTarget, int rightTarget, unsigned long rampTime) {
   unsigned long stepDelay = rampTime / maxSteps;
 
   for (int step = 1; step <= maxSteps; step++) {
-    // Вычисляем текущую скорость для каждого мотора
+    // Әр қозғалтқыш үшін ағымдағы жылдамдықты есептейміз
     int leftSpeed = leftCurrent + (leftDiff * step / maxSteps);
     int rightSpeed = rightCurrent + (rightDiff * step / maxSteps);
 
@@ -81,50 +80,50 @@ void smoothBothMotors(int leftTarget, int rightTarget, unsigned long rampTime) {
     delay(stepDelay);
   }
 
-  // Гарантируем точное достижение целевых значений
+  // Мақсатты мәндерге дәл жетуді кепілдендіреміз
   motorLeft.setSpeed(leftTarget);
   motorRight.setSpeed(rightTarget);
 }
 
-// Движение вперед
+// Алға қозғалу
 void moveForward(int speed) {
   setBothMotors(speed, speed);
 }
 
-// Движение назад
+// Артқа қозғалу
 void moveBackward(int speed) {
   setBothMotors(-speed, -speed);
 }
 
-// Поворот на месте вправо
+// Орнында оңға бұрылу
 void turnRight(int speed) {
   setBothMotors(speed, -speed);
 }
 
-// Поворот на месте влево
+// Орнында солға бұрылу
 void turnLeft(int speed) {
   setBothMotors(-speed, speed);
 }
 
-// Плавный поворот (дуга) вправо
+// Тегіс бұрылыс (доға) оңға
 void arcRight(int baseSpeed, int turnAmount) {
   int leftSpeed = baseSpeed;
   int rightSpeed = baseSpeed - turnAmount;
   setBothMotors(leftSpeed, rightSpeed);
 }
 
-// Плавный поворот (дуга) влево
+// Тегіс бұрылыс (доға) солға
 void arcLeft(int baseSpeed, int turnAmount) {
   int leftSpeed = baseSpeed - turnAmount;
   int rightSpeed = baseSpeed;
   setBothMotors(leftSpeed, rightSpeed);
 }
 
-// Вывод состояния всех моторов
+// Барлық қозғалтқыш күйін шығару
 void printMotorStatus() {
-  Serial.print(F("Левый: "));
+  Serial.print(F("Сол: "));
   Serial.print(motorLeft.getSpeed());
-  Serial.print(F("  |  Правый: "));
+  Serial.print(F("  |  Оң: "));
   Serial.println(motorRight.getSpeed());
 }
 
@@ -133,50 +132,50 @@ void setup() {
   delay(1000);
 
   Serial.println(F("╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║  СИНХРОНИЗАЦИЯ НЕСКОЛЬКИХ МОТОРОВ             ║"));
+  Serial.println(F("║  БІРНЕШЕ ҚОЗҒАЛТҚЫШТЫ СИНХРОНДАУ              ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
   delay(2000);
 }
 
 void loop() {
-  // ========== БАЗОВАЯ СИНХРОНИЗАЦИЯ ==========
+  // ========== НЕГІЗГІ СИНХРОНДАУ ==========
   Serial.println(F("═══════════════════════════════════════════════"));
-  Serial.println(F("БАЗОВАЯ СИНХРОНИЗАЦИЯ"));
+  Serial.println(F("НЕГІЗГІ СИНХРОНДАУ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Одновременный запуск обоих моторов\n"));
+  Serial.println(F("→ Екі қозғалтқышты бір уақытта іске қосу\n"));
 
-  Serial.println(F("ПЛОХО - моторы запускаются по очереди:"));
+  Serial.println(F("ЖАМАН - қозғалтқыштар кезекпен іске қосылады:"));
   Serial.println(F("  motorLeft.setSpeed(80);"));
-  Serial.println(F("  delay(100);  // Левый уже работает!"));
+  Serial.println(F("  delay(100);  // Сол жақ қазірдің өзінде жұмыс істейді!"));
   Serial.println(F("  motorRight.setSpeed(80);\n"));
 
-  Serial.println(F("ХОРОШО - моторы запускаются синхронно:"));
+  Serial.println(F("ЖАҚСЫ - қозғалтқыштар синхронды іске қосылады:"));
   Serial.println(F("  motorLeft.setSpeed(80);"));
-  Serial.println(F("  motorRight.setSpeed(80);  // Сразу после левого\n"));
+  Serial.println(F("  motorRight.setSpeed(80);  // Сол жақтан кейін бірден\n"));
 
-  Serial.println(F("Запускаем синхронно:"));
+  Serial.println(F("Синхронды іске қосамыз:"));
   setBothMotors(70, 70);
   printMotorStatus();
   delay(2000);
 
-  Serial.println(F("\n→ Одновременная остановка"));
+  Serial.println(F("\n→ Бір уақытта тоқтату"));
   stopAllMotors();
   printMotorStatus();
   delay(2000);
 
-  // ========== РАЗНЫЕ СКОРОСТИ ==========
+  // ========== ӘРТҮРЛІ ЖЫЛДАМДЫҚТАР ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("КООРДИНАЦИЯ РАЗНЫХ СКОРОСТЕЙ"));
+  Serial.println(F("ӘРТҮРЛІ ЖЫЛДАМДЫҚТАРДЫ ҮЙЛЕСТІРУ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Левый 80%, Правый 40% (поворот)"));
+  Serial.println(F("→ Сол 80%, Оң 40% (бұрылыс)"));
   setBothMotors(80, 40);
   printMotorStatus();
   delay(2000);
 
-  Serial.println(F("\n→ Левый 40%, Правый 80% (поворот)"));
+  Serial.println(F("\n→ Сол 40%, Оң 80% (бұрылыс)"));
   setBothMotors(40, 80);
   printMotorStatus();
   delay(2000);
@@ -184,27 +183,27 @@ void loop() {
   stopAllMotors();
   delay(1000);
 
-  // ========== ИСПОЛЬЗОВАНИЕ ФУНКЦИЙ ДВИЖЕНИЯ ==========
+  // ========== ҚОЗҒАЛЫС ФУНКЦИЯЛАРЫН ПАЙДАЛАНУ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ФУНКЦИИ ДВИЖЕНИЯ"));
+  Serial.println(F("ҚОЗҒАЛЫС ФУНКЦИЯЛАРЫ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Вперед на 60%"));
+  Serial.println(F("→ 60% жылдамдықпен алға"));
   moveForward(60);
   printMotorStatus();
   delay(2000);
 
-  Serial.println(F("\n→ Назад на 50%"));
+  Serial.println(F("\n→ 50% жылдамдықпен артқа"));
   moveBackward(50);
   printMotorStatus();
   delay(2000);
 
-  Serial.println(F("\n→ Поворот на месте вправо"));
+  Serial.println(F("\n→ Орнында оңға бұрылу"));
   turnRight(50);
   printMotorStatus();
   delay(1500);
 
-  Serial.println(F("\n→ Поворот на месте влево"));
+  Serial.println(F("\n→ Орнында солға бұрылу"));
   turnLeft(50);
   printMotorStatus();
   delay(1500);
@@ -212,61 +211,61 @@ void loop() {
   stopAllMotors();
   delay(1000);
 
-  // ========== ПЛАВНЫЕ ПОВОРОТЫ (ДУГИ) ==========
+  // ========== ТЕГІС БҰРЫЛЫСТАР (ДОҒАЛАР) ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("ПЛАВНЫЕ ПОВОРОТЫ (ДУГИ)"));
+  Serial.println(F("ТЕГІС БҰРЫЛЫСТАР (ДОҒАЛАР)"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Дуга вправо (базовая скорость 70)"));
-  arcRight(70, 30);  // Правый мотор на 40 (70-30)
+  Serial.println(F("→ Оңға доға (негізгі жылдамдық 70)"));
+  arcRight(70, 30);  // Оң қозғалтқыш 40-та (70-30)
   printMotorStatus();
   delay(2000);
 
-  Serial.println(F("\n→ Дуга влево (базовая скорость 70)"));
-  arcLeft(70, 30);   // Левый мотор на 40 (70-30)
+  Serial.println(F("\n→ Солға доға (негізгі жылдамдық 70)"));
+  arcLeft(70, 30);   // Сол қозғалтқыш 40-та (70-30)
   printMotorStatus();
   delay(2000);
 
   stopAllMotors();
   delay(1000);
 
-  // ========== СИНХРОННАЯ ПЛАВНАЯ СМЕНА СКОРОСТИ ==========
+  // ========== СИНХРОНДЫ ТЕГІС ЖЫЛДАМДЫҚ ӨЗГЕРТУ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("СИНХРОННОЕ ПЛАВНОЕ ИЗМЕНЕНИЕ"));
+  Serial.println(F("СИНХРОНДЫ ТЕГІС ӨЗГЕРТУ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Плавный разгон: 0 → 80 за 2 секунды"));
+  Serial.println(F("→ Тегіс үдеу: 0 → 80 2 секундта"));
   smoothBothMotors(80, 80, 2000);
   printMotorStatus();
   delay(1000);
 
-  Serial.println(F("\n→ Плавное замедление: 80 → 30 за 1.5 секунды"));
+  Serial.println(F("\n→ Тегіс баяулау: 80 → 30 1.5 секундта"));
   smoothBothMotors(30, 30, 1500);
   printMotorStatus();
   delay(1000);
 
-  Serial.println(F("\n→ Плавная остановка: 30 → 0 за 1 секунду"));
+  Serial.println(F("\n→ Тегіс тоқтату: 30 → 0 1 секундта"));
   smoothBothMotors(0, 0, 1000);
   printMotorStatus();
   delay(1000);
 
-  // ========== СЛОЖНЫЕ МАНЕВРЫ ==========
+  // ========== КҮРДЕЛІ МАНЕВРЛЕР ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("СЛОЖНЫЕ МАНЕВРЫ"));
+  Serial.println(F("КҮРДЕЛІ МАНЕВРЛЕР"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("Маневр 1: Квадрат\n"));
+  Serial.println(F("Маневр 1: Төртбұрыш\n"));
 
   for (int side = 1; side <= 4; side++) {
-    Serial.print(F("  Сторона "));
+    Serial.print(F("  Қабырға "));
     Serial.print(side);
-    Serial.println(F(": Вперед"));
+    Serial.println(F(": Алға"));
     moveForward(60);
     delay(1500);
 
-    Serial.println(F("  Поворот на 90°"));
+    Serial.println(F("  90° бұрылыс"));
     turnRight(50);
-    delay(750);  // Примерно 90 градусов
+    delay(750);  // Шамамен 90 градус
 
     stopAllMotors();
     delay(300);
@@ -274,15 +273,15 @@ void loop() {
 
   delay(1000);
 
-  Serial.println(F("\nМаневр 2: Восьмерка\n"));
+  Serial.println(F("\nМаневр 2: Сегіз\n"));
 
-  Serial.println(F("  Правый круг:"));
+  Serial.println(F("  Оң шеңбер:"));
   for (int i = 0; i < 4; i++) {
     arcRight(60, 40);
     delay(750);
   }
 
-  Serial.println(F("  Левый круг:"));
+  Serial.println(F("  Сол шеңбер:"));
   for (int i = 0; i < 4; i++) {
     arcLeft(60, 40);
     delay(750);
@@ -291,21 +290,21 @@ void loop() {
   stopAllMotors();
   delay(2000);
 
-  // ========== НЕЗАВИСИМОЕ УПРАВЛЕНИЕ ==========
+  // ========== ТӘУЕЛСІЗ БАСҚАРУ ==========
   Serial.println(F("\n═══════════════════════════════════════════════"));
-  Serial.println(F("НЕЗАВИСИМОЕ УПРАВЛЕНИЕ"));
+  Serial.println(F("ТӘУЕЛСІЗ БАСҚАРУ"));
   Serial.println(F("═══════════════════════════════════════════════\n"));
 
-  Serial.println(F("→ Левый плавно разгоняется, правый стоит"));
+  Serial.println(F("→ Сол жақ тегіс үдейді, оң жақ тұр"));
   for (int speed = 0; speed <= 80; speed += 5) {
     motorLeft.setSpeed(speed);
-    // motorRight остается на 0
+    // motorRight 0-де қалады
     delay(100);
   }
   printMotorStatus();
   delay(1000);
 
-  Serial.println(F("\n→ Правый догоняет левый"));
+  Serial.println(F("\n→ Оң жақ сол жаққа жетеді"));
   for (int speed = 0; speed <= 80; speed += 5) {
     motorRight.setSpeed(speed);
     delay(100);
@@ -313,33 +312,33 @@ void loop() {
   printMotorStatus();
   delay(1000);
 
-  Serial.println(F("\n→ Оба плавно останавливаются"));
+  Serial.println(F("\n→ Екеуі де тегіс тоқтайды"));
   smoothBothMotors(0, 0, 1500);
   delay(1000);
 
-  // ========== РЕКОМЕНДАЦИИ ==========
+  // ========== ҰСЫНЫСТАР ==========
   Serial.println(F("\n╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║      ЛУЧШИЕ ПРАКТИКИ СИНХРОНИЗАЦИИ            ║"));
+  Serial.println(F("║      СИНХРОНДАУДЫҢ ЕҢ ЖАҚСЫ ТӘЖІРИБЕЛЕРІ      ║"));
   Serial.println(F("╠═══════════════════════════════════════════════╣"));
-  Serial.println(F("║  1. Создавайте функции для частых операций:   ║"));
+  Serial.println(F("║  1. Жиі операциялар үшін функциялар жасаңыз: ║"));
   Serial.println(F("║     • moveForward(speed)                      ║"));
   Serial.println(F("║     • turnLeft(speed)                         ║"));
   Serial.println(F("║     • stopAllMotors()                         ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  2. Устанавливайте скорости последовательно:  ║"));
+  Serial.println(F("║  2. Жылдамдықтарды кезекпен орнатыңыз:        ║"));
   Serial.println(F("║     motorLeft.setSpeed(speed);                ║"));
   Serial.println(F("║     motorRight.setSpeed(speed);               ║"));
-  Serial.println(F("║     // НЕ используйте delay() между ними!     ║"));
+  Serial.println(F("║     // Олардың арасында delay() ҚОЛДАНБАҢЫЗ! ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  3. Для плавных движений используйте:         ║"));
-  Serial.println(F("║     • Общую функцию smoothBothMotors()        ║"));
-  Serial.println(F("║     • Синхронное изменение скоростей          ║"));
+  Serial.println(F("║  3. Тегіс қозғалыс үшін пайдаланыңыз:         ║"));
+  Serial.println(F("║     • Жалпы smoothBothMotors() функциясын     ║"));
+  Serial.println(F("║     • Жылдамдықтарды синхронды өзгерту        ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  4. Всегда проверяйте текущее состояние:      ║"));
-  Serial.println(F("║     • Используйте getSpeed()                  ║"));
-  Serial.println(F("║     • Выводите в Serial для отладки           ║"));
+  Serial.println(F("║  4. Ағымдағы күйді әрқашан тексеріңіз:        ║"));
+  Serial.println(F("║     • getSpeed() қолданыңыз                   ║"));
+  Serial.println(F("║     • Жөндеу үшін Serial-ға шығарыңыз         ║"));
   Serial.println(F("║                                                ║"));
-  Serial.println(F("║  5. Для роботов создайте класс Robot:         ║"));
+  Serial.println(F("║  5. Роботтар үшін Robot класын жасаңыз:       ║"));
   Serial.println(F("║     class Robot {                             ║"));
   Serial.println(F("║       AlashMotorControlLite left, right;      ║"));
   Serial.println(F("║       void forward(int speed);                ║"));
@@ -347,6 +346,6 @@ void loop() {
   Serial.println(F("║     }                                          ║"));
   Serial.println(F("╚═══════════════════════════════════════════════╝\n"));
 
-  Serial.println(F("Цикл завершен. Повтор через 5 секунд...\n\n"));
+  Serial.println(F("Цикл аяқталды. 5 секундтан кейін қайталау...\n\n"));
   delay(5000);
 }
